@@ -25,13 +25,20 @@ export function LeaseUploadStep({ onLeaseData, onNext, onBack, hasLease }: Lease
   const [uploading, setUploading] = useState(false);
   const [uploaded, setUploaded] = useState(hasLease);
   const [fileName, setFileName] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 20 * 1024 * 1024) {
+      setError("File is too large. Please choose a file under 20 MB.");
+      return;
+    }
+
     setUploading(true);
+    setError(null);
     try {
       const arrayBuffer = await file.arrayBuffer();
       const base64 = btoa(
@@ -48,7 +55,7 @@ export function LeaseUploadStep({ onLeaseData, onNext, onBack, hasLease }: Lease
       setFileName(file.name);
       setUploaded(true);
     } catch {
-      /* ignore */
+      setError("Failed to read the file. Please try a different format.");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -129,6 +136,12 @@ export function LeaseUploadStep({ onLeaseData, onNext, onBack, hasLease }: Lease
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3" role="alert">
+          <p className="text-sm text-destructive">{error}</p>
         </div>
       )}
 

@@ -40,7 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
         async authorize(credentials) {
           if (!credentials?.email || !credentials?.password) return null;
 
-          const email = credentials.email as string;
+          const email = (credentials.email as string).toLowerCase();
           const password = credentials.password as string;
 
           const [user] = await db
