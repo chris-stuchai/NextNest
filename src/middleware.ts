@@ -1,19 +1,21 @@
 import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 const PROTECTED_ROUTES = ["/dashboard", "/admin"];
 const AUTH_ROUTES = ["/login", "/signup", "/verify"];
 
-export default auth((req) => {
-  const { pathname } = req.nextUrl;
-  const isAuthenticated = !!req.auth;
+export async function middleware(request: NextRequest) {
+  const session = await auth();
+  const { pathname } = request.nextUrl;
+  const isAuthenticated = !!session?.user;
 
   if (isAuthenticated && AUTH_ROUTES.some((r) => pathname.startsWith(r))) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   if (!isAuthenticated && PROTECTED_ROUTES.some((r) => pathname.startsWith(r))) {
-    const loginUrl = new URL("/login", req.url);
+    const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
@@ -25,7 +27,7 @@ export default auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
