@@ -73,10 +73,24 @@ export default function BudgetPage() {
       });
       const json = await res.json();
       if (json.data) {
-        setBudget(json.data);
+        setBudget({
+          id: budget?.id ?? "",
+          totalBudget: parseInt(totalBudget),
+          housingBudget: housingBudget ? parseInt(housingBudget) : null,
+          movingBudget: movingBudget ? parseInt(movingBudget) : null,
+          travelBudget: travelBudget ? parseInt(travelBudget) : null,
+          emergencyFund: emergencyFund ? parseInt(emergencyFund) : null,
+          notes: null,
+        });
+
+        // Refetch dashboard data to get the regenerated budget items
+        const dashRes = await fetch("/api/dashboard");
+        const dashJson = await dashRes.json();
+        if (dashJson.data) setData(dashJson.data);
+
         setSaved(true);
         setShowForm(false);
-        setTimeout(() => setSaved(false), 3000);
+        setTimeout(() => setSaved(false), 4000);
       }
     } finally {
       setSaving(false);
@@ -192,10 +206,10 @@ export default function BudgetPage() {
                 </div>
                 <p className="mt-2 text-xs text-muted-foreground">
                   {budget.totalBudget >= estimatedHigh
-                    ? "Your budget covers the estimated costs comfortably."
+                    ? "AI found options that fit your budget. You're covered."
                     : budget.totalBudget >= estimatedLow
-                      ? "Your budget is within the estimated range. Consider the higher estimate."
-                      : "Your budget may be tight. The AI will help you find ways to save."}
+                      ? "AI optimized for your budget. Check the notes below for savings tips."
+                      : "AI found the cheapest options. See notes for additional ways to save."}
                 </p>
               </div>
             )}
@@ -276,7 +290,7 @@ export default function BudgetPage() {
                     className="gap-2"
                   >
                     {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                    {saved ? "Saved!" : "Save Budget"}
+                    {saving ? "AI is replanning..." : saved ? "Saved!" : "Save Budget"}
                   </Button>
                   {budget && showForm && (
                     <Button variant="ghost" onClick={() => setShowForm(false)}>Cancel</Button>
@@ -298,7 +312,7 @@ export default function BudgetPage() {
           className="fixed bottom-6 right-6 flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground shadow-lg"
         >
           <CheckCircle2 className="h-4 w-4" />
-          Budget saved — AI will adapt your plan
+          Budget saved — costs adjusted to fit your budget
         </motion.div>
       )}
     </motion.div>

@@ -1,8 +1,15 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { userBudgets } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import {
+  userBudgets,
+  intakeResponses,
+  relocationPlans,
+  budgetItems,
+} from "@/lib/db/schema";
+import { eq, desc } from "drizzle-orm";
+import { regenerateBudgetForConstraints } from "@/lib/ai-plan-engine";
+import type { IntakeResponse } from "@/types";
 
 /** GET — Retrieve the user's budget. */
 export async function GET() {
@@ -21,7 +28,7 @@ export async function GET() {
   return NextResponse.json({ data: budget ?? null });
 }
 
-/** POST — Create or update the user's budget. */
+/** POST — Create or update the user's budget, then regenerate AI cost estimates to fit. */
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -36,6 +43,7 @@ export async function POST(request: Request) {
   }
 
   const db = getDb();
+
   const [existing] = await db
     .select()
     .from(userBudgets)
@@ -55,13 +63,8 @@ export async function POST(request: Request) {
         updatedAt: new Date(),
       })
       .where(eq(userBudgets.id, existing.id));
-
-    return NextResponse.json({ data: { ...existing, totalBudget } });
-  }
-
-  const [budget] = await db
-    .insert(userBudgets)
-    .values({
+  } else {
+    await db.insert(userBudgets).values({
       userId: session.user.id,
       totalBudget,
       housingBudget: housingBudget ?? null,
@@ -69,8 +72,39 @@ export async function POST(request: Request) {
       travelBudget: travelBudget ?? null,
       emergencyFund: emergencyFund ?? null,
       notes: notes ?? null,
-    })
-    .returning();
+    });
+  }
 
-  return NextResponse.json({ data: budget });
+  // Regenerate budget items based on the user's real budget
+  const [intake, plan] = await Promise.all([
+    db
+      .select()
+      .from(intakeResponses)
+      .where(eq(intakeResponses.userId, session.user.id))
+      .orderBy(desc(intakeResponses.createdAt))
+      .limit(1)
+      .then((r) => r[0]),
+    db
+      .select()
+      .from(relocationPlans)
+      .where(eq(relocationPlans.userId, session.user.id))
+      .orderBy(desc(relocationPlans.createdAt))
+      .limit(1)
+      .then((r) => r[0]),
+  ]);
+
+  if (intake && plan) {
+    const newItems = await regenerateBudgetForConstraints(
+      intake as IntakeResponse,
+      plan.id,
+      { totalBudget, housingBudget, movingBudget, travelBudget, emergencyFund }
+    );
+
+    if (newItems && newItems.length > 0) {
+      await db.delete(budgetItems).where(eq(budgetItems.planId, plan.id));
+      await db.insert(budgetItems).values(newItems);
+    }
+  }
+
+  return NextResponse.json({ data: { totalBudget }, regenerated: true });
 }

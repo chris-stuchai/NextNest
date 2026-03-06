@@ -45,6 +45,19 @@ Rules:
 
 Return ONLY a JSON array of objects with fields: label (string), category (string), estimatedLow (number), estimatedHigh (number), notes (string). No markdown.`;
 
+const BUDGET_CONSTRAINED_PROMPT = `You are a relocation cost optimization expert. The user has a FIXED BUDGET and you must help them move within it.
+
+Rules:
+- The total of all estimatedHigh values MUST NOT exceed the user's total budget
+- Prioritize the cheapest viable options for their route
+- Suggest specific money-saving strategies in the notes (e.g., "DIY packing saves $X", "Move mid-week for 20% discount")
+- If the budget is very tight, be creative: suggest labor-only movers + truck rental, off-peak moving dates, free packing materials, etc.
+- Be honest if something is unrealistic, but always provide the cheapest path forward
+- Categories: "housing", "finance", "logistics", "admin"
+- Every item should feel achievable, not aspirational
+
+Return ONLY a JSON array of objects with fields: label (string), category (string), estimatedLow (number), estimatedHigh (number), notes (string). No markdown.`;
+
 function buildUserContext(intake: IntakeResponse): string {
   return `Moving from: ${intake.movingFrom}
 Moving to: ${intake.movingTo}
@@ -131,6 +144,57 @@ export async function generateAiBudgetItems(
     }));
   } catch (error) {
     console.error("AI budget generation failed, falling back to templates:", error);
+    return null;
+  }
+}
+
+interface BudgetConstraints {
+  totalBudget: number;
+  housingBudget?: number | null;
+  movingBudget?: number | null;
+  travelBudget?: number | null;
+  emergencyFund?: number | null;
+}
+
+/**
+ * Regenerates budget items constrained to the user's actual budget.
+ * The AI will find the cheapest viable path and suggest cost-saving alternatives.
+ */
+export async function regenerateBudgetForConstraints(
+  intake: IntakeResponse,
+  planId: string,
+  budget: BudgetConstraints
+): Promise<NewBudgetItem[] | null> {
+  if (!process.env.ANTHROPIC_API_KEY) return null;
+
+  try {
+    const budgetContext = `${buildUserContext(intake)}
+
+USER'S ACTUAL BUDGET:
+- Total budget: $${budget.totalBudget.toLocaleString()}${budget.housingBudget ? `\n- Housing budget: $${budget.housingBudget.toLocaleString()}` : ""}${budget.movingBudget ? `\n- Moving/logistics budget: $${budget.movingBudget.toLocaleString()}` : ""}${budget.travelBudget ? `\n- Travel budget: $${budget.travelBudget.toLocaleString()}` : ""}${budget.emergencyFund ? `\n- Emergency fund: $${budget.emergencyFund.toLocaleString()}` : ""}
+
+CRITICAL: The sum of all estimatedHigh values must stay WITHIN $${budget.totalBudget.toLocaleString()}. Find the cheapest realistic options.`;
+
+    const anthropic = getAnthropic();
+    const result = await generateText({
+      model: anthropic(AI_MODEL),
+      system: BUDGET_CONSTRAINED_PROMPT,
+      prompt: budgetContext,
+    });
+
+    const parsed: AiBudgetItem[] = JSON.parse(result.text);
+
+    return parsed.map((b) => ({
+      planId,
+      userId: intake.userId,
+      category: b.category,
+      label: b.label,
+      estimatedLow: b.estimatedLow,
+      estimatedHigh: b.estimatedHigh,
+      notes: b.notes,
+    }));
+  } catch (error) {
+    console.error("Budget-constrained regeneration failed:", error);
     return null;
   }
 }
