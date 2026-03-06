@@ -6,6 +6,7 @@ import {
   timelineMilestones,
   budgetItems,
   intakeResponses,
+  leaseDocuments,
 } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { daysUntil } from "@/lib/utils";
@@ -38,7 +39,7 @@ export async function GET() {
       );
     }
 
-    const [milestoneList, budgetList, [intake]] = await Promise.all([
+    const [milestoneList, budgetList, [intake], [latestLease]] = await Promise.all([
       db
         .select()
         .from(timelineMilestones)
@@ -54,7 +55,19 @@ export async function GET() {
         .where(eq(intakeResponses.userId, session.user.id))
         .orderBy(desc(intakeResponses.createdAt))
         .limit(1),
+      db
+        .select()
+        .from(leaseDocuments)
+        .where(eq(leaseDocuments.userId, session.user.id))
+        .orderBy(desc(leaseDocuments.createdAt))
+        .limit(1),
     ]);
+
+    const rawLease = latestLease?.extractedData as Record<string, unknown> | null;
+    const leaseData =
+      latestLease?.status === "completed" && rawLease && !rawLease.parseError
+        ? (rawLease as DashboardData["leaseData"])
+        : null;
 
     const dashboardData: DashboardData = {
       plan,
@@ -62,6 +75,7 @@ export async function GET() {
       budgetItems: budgetList,
       intake: intake,
       daysUntilMove: daysUntil(plan.targetDate),
+      leaseData,
     };
 
     return NextResponse.json<ApiResponse<DashboardData>>(

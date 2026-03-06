@@ -69,6 +69,23 @@ export interface DashboardData {
   budgetItems: BudgetItem[];
   intake: IntakeResponse;
   daysUntilMove: number;
+  leaseData?: LeaseExtractedData | null;
+}
+
+export interface LeaseExtractedData {
+  summary?: string;
+  leaseEndDate?: string;
+  monthlyRent?: number;
+  securityDeposit?: number;
+  petDeposit?: number;
+  noticeRequired?: string;
+  landlordContact?: { name?: string; phone?: string; email?: string };
+  moveOutChecklist?: string[];
+  cleaningRequirements?: string[];
+  keyReturnInstructions?: string;
+  utilities?: string[];
+  penalties?: string[];
+  parseError?: boolean;
 }
 
 // ─── Intake Step Types ───────────────────────────────────

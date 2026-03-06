@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { intakeQuestions } from "@/constants/intake-questions";
 import { IntakeProgress } from "@/components/intake/IntakeProgress";
 import { IntakeStepComponent } from "@/components/intake/IntakeStep";
+import { LeaseUploadStep } from "@/components/intake/LeaseUploadStep";
 import { motion, AnimatePresence } from "framer-motion";
 import type { IntakeFormData } from "@/types";
 
@@ -21,25 +22,36 @@ const initialData: IntakeFormData = {
   topConcern: "",
 };
 
-/** Multi-step conversational intake flow with slide transitions. */
+interface LeaseFile {
+  fileData: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+}
+
+/** Multi-step conversational intake flow with lease upload and slide transitions. */
 export default function IntakePage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<IntakeFormData>(initialData);
+  const [leaseFile, setLeaseFile] = useState<LeaseFile | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [slideDirection, setSlideDirection] = useState<"forward" | "backward">("forward");
 
-  const step = intakeQuestions[currentStep];
-  const totalSteps = intakeQuestions.length;
+  const totalSteps = intakeQuestions.length + 1;
+  const isLeaseStep = currentStep === intakeQuestions.length;
+  const step = !isLeaseStep ? intakeQuestions[currentStep] : null;
 
   function getCurrentValue(): string | number | boolean {
+    if (!step) return "";
     const raw = formData[step.field];
     if (typeof raw === "boolean") return String(raw);
     return raw;
   }
 
   function handleChange(value: string | number | boolean) {
+    if (!step) return;
     setFormData((prev) => {
       const field = step.field;
       let parsed: string | number | boolean = value;
@@ -87,6 +99,15 @@ export default function IntakePage() {
         throw new Error(result.error ?? "Failed to submit intake");
       }
 
+      // If they uploaded a lease, send it for analysis
+      if (leaseFile) {
+        fetch("/api/lease", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(leaseFile),
+        }).catch(() => {});
+      }
+
       router.push(`/intake/loading?planId=${result.data.planId}`);
     } catch (err) {
       console.error("Intake submission failed:", err);
@@ -109,7 +130,7 @@ export default function IntakePage() {
             <div className="absolute inset-4 animate-orbit rounded-full border-2 border-primary/5 border-t-primary/40" style={{ animationDuration: "2s" }} />
           </div>
           <p className="text-lg font-medium text-muted-foreground">
-            Preparing your plan...
+            {leaseFile ? "Analyzing your lease & building your plan..." : "Preparing your plan..."}
           </p>
         </motion.div>
       </div>
@@ -144,7 +165,7 @@ export default function IntakePage() {
       <div className="mt-12">
         <AnimatePresence mode="wait" custom={slideDirection}>
           <motion.div
-            key={step.id}
+            key={isLeaseStep ? "lease-step" : step!.id}
             custom={slideDirection}
             variants={slideVariants}
             initial="enter"
@@ -155,16 +176,25 @@ export default function IntakePage() {
               opacity: { duration: 0.2 },
             }}
           >
-            <IntakeStepComponent
-              step={step}
-              value={getCurrentValue()}
-              onChange={handleChange}
-              onNext={handleNext}
-              onBack={handleBack}
-              isFirst={currentStep === 0}
-              isLast={currentStep === totalSteps - 1}
-              error={error}
-            />
+            {isLeaseStep ? (
+              <LeaseUploadStep
+                onLeaseData={setLeaseFile}
+                onNext={handleSubmit}
+                onBack={handleBack}
+                hasLease={!!leaseFile}
+              />
+            ) : (
+              <IntakeStepComponent
+                step={step!}
+                value={getCurrentValue()}
+                onChange={handleChange}
+                onNext={handleNext}
+                onBack={handleBack}
+                isFirst={currentStep === 0}
+                isLast={false}
+                error={error}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
       </div>

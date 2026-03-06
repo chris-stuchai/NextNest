@@ -20,9 +20,15 @@ import {
   Camera,
   CreditCard,
   Truck,
+  AlertTriangle,
+  Sparkles,
+  Shield,
+  Droplets,
+  Key,
+  Upload,
 } from "lucide-react";
 import Link from "next/link";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate, formatCurrency, daysUntil } from "@/lib/utils";
 import type { DashboardData } from "@/types";
 
 const fadeUp: Variants = {
@@ -34,7 +40,7 @@ const fadeUp: Variants = {
   }),
 };
 
-/** Clean, guided dashboard — shows the user what matters most. */
+/** Clean, guided dashboard — lease data powers the entire experience when available. */
 export default function DashboardPage() {
   const { data: session } = useSession();
   const [data, setData] = useState<DashboardData | null>(null);
@@ -54,7 +60,9 @@ export default function DashboardPage() {
     }
   }
 
-  useEffect(() => { fetchDashboard(); }, []);
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
 
   const { toggleMilestone, updatingIds } = useMilestones(() => fetchDashboard());
 
@@ -82,9 +90,7 @@ export default function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           className="rounded-3xl bg-gradient-to-br from-primary/5 via-background to-primary/5 border p-12 text-center"
         >
-          <h2 className="text-xl font-semibold">
-            {error ?? "No plan found"}
-          </h2>
+          <h2 className="text-xl font-semibold">{error ?? "No plan found"}</h2>
           <p className="mt-2 text-muted-foreground">
             {error
               ? "Please try refreshing the page."
@@ -113,6 +119,16 @@ export default function DashboardPage() {
     .filter((m) => !m.isCompleted)
     .sort((a, b) => new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime())[0];
 
+  const lease = data.leaseData;
+  const hasLease = !!lease;
+
+  const noticeDaysLeft = lease?.leaseEndDate && lease?.noticeRequired
+    ? computeNoticeDaysLeft(lease.leaseEndDate, lease.noticeRequired)
+    : null;
+
+  const moveOutChecklistTotal = lease?.moveOutChecklist?.length ?? 0;
+  const cleaningTotal = lease?.cleaningRequirements?.length ?? 0;
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
       {/* Hero welcome */}
@@ -130,11 +146,12 @@ export default function DashboardPage() {
           </h1>
           <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
-            <span>{data.intake.movingFrom} → {data.intake.movingTo}</span>
+            <span>
+              {data.intake.movingFrom} → {data.intake.movingTo}
+            </span>
           </div>
         </div>
 
-        {/* Large countdown */}
         <div className="absolute right-8 top-1/2 -translate-y-1/2 hidden sm:block">
           <div className="text-right">
             <div className="text-5xl font-bold tracking-tight text-primary/80">
@@ -144,7 +161,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Mobile countdown */}
         <div className="mt-4 flex items-center gap-2 sm:hidden">
           <Clock className="h-4 w-4 text-primary" />
           <span className="text-lg font-bold">{data.daysUntilMove} days</span>
@@ -152,11 +168,38 @@ export default function DashboardPage() {
         </div>
       </motion.div>
 
-      {/* Three stat cards */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
-          <Link href="/dashboard/timeline" className="block">
-            <div className="group rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20">
+      {/* Lease-powered alerts */}
+      {hasLease && noticeDaysLeft !== null && noticeDaysLeft <= 30 && (
+        <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible" className="mt-4">
+          <div
+            className={`rounded-2xl border-2 p-5 flex items-start gap-4 ${
+              noticeDaysLeft <= 7
+                ? "border-red-300 bg-red-50 dark:bg-red-950/20"
+                : "border-amber-300 bg-amber-50 dark:bg-amber-950/20"
+            }`}
+          >
+            <AlertTriangle
+              className={`h-5 w-5 mt-0.5 shrink-0 ${noticeDaysLeft <= 7 ? "text-red-500" : "text-amber-500"}`}
+            />
+            <div>
+              <p className={`text-sm font-semibold ${noticeDaysLeft <= 7 ? "text-red-900 dark:text-red-200" : "text-amber-900 dark:text-amber-200"}`}>
+                {noticeDaysLeft <= 0
+                  ? "Notice deadline has passed!"
+                  : `${noticeDaysLeft} days left to give notice`}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Your lease requires {lease.noticeRequired} notice before {lease.leaseEndDate}.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Stat cards row — adapts based on lease data */}
+      <div className={`mt-6 grid gap-4 ${hasLease ? "sm:grid-cols-4" : "sm:grid-cols-3"}`}>
+        <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
+          <Link href="/dashboard/timeline" className="block h-full">
+            <div className="group rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20 h-full">
               <div className="flex items-center justify-between">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary/10">
                   <TrendingUp className="h-4 w-4 text-primary" />
@@ -169,7 +212,6 @@ export default function DashboardPage() {
                   {completedCount} of {totalCount} milestones
                 </p>
               </div>
-              {/* Mini progress bar */}
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
                 <motion.div
                   className="h-full rounded-full bg-primary"
@@ -182,9 +224,9 @@ export default function DashboardPage() {
           </Link>
         </motion.div>
 
-        <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
-          <Link href="/dashboard/budget" className="block">
-            <div className="group rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20">
+        <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
+          <Link href="/dashboard/budget" className="block h-full">
+            <div className="group rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20 h-full">
               <div className="flex items-center justify-between">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10">
                   <DollarSign className="h-4 w-4 text-emerald-600" />
@@ -192,20 +234,18 @@ export default function DashboardPage() {
                 <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
               </div>
               <div className="mt-4">
-                <p className="text-2xl font-bold tabular-nums">
-                  {formatCurrency(totalBudgetLow)}
-                </p>
+                <p className="text-2xl font-bold tabular-nums">{formatCurrency(totalBudgetLow)}</p>
                 <p className="mt-0.5 text-sm text-muted-foreground">
-                  to {formatCurrency(totalBudgetHigh)} estimated
+                  to {formatCurrency(totalBudgetHigh)} est.
                 </p>
               </div>
             </div>
           </Link>
         </motion.div>
 
-        <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
-          <Link href="/dashboard/checklist" className="block">
-            <div className="group rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20">
+        <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible">
+          <Link href="/dashboard/checklist" className="block h-full">
+            <div className="group rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20 h-full">
               <div className="flex items-center justify-between">
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-500/10">
                   <CalendarDays className="h-4 w-4 text-amber-600" />
@@ -213,19 +253,141 @@ export default function DashboardPage() {
                 <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
               </div>
               <div className="mt-4">
-                <p className="text-2xl font-bold tabular-nums">
-                  {formatDate(data.plan.targetDate)}
-                </p>
+                <p className="text-2xl font-bold tabular-nums">{formatDate(data.plan.targetDate)}</p>
                 <p className="mt-0.5 text-sm text-muted-foreground">Move date</p>
               </div>
             </div>
           </Link>
         </motion.div>
+
+        {hasLease && lease.securityDeposit && (
+          <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible">
+            <Link href="/dashboard/lease" className="block h-full">
+              <div className="group rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20 h-full">
+                <div className="flex items-center justify-between">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-500/10">
+                    <Shield className="h-4 w-4 text-violet-600" />
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                </div>
+                <div className="mt-4">
+                  <p className="text-2xl font-bold tabular-nums">{formatCurrency(lease.securityDeposit)}</p>
+                  <p className="mt-0.5 text-sm text-muted-foreground">Deposit to recover</p>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+        )}
       </div>
+
+      {/* Lease Intelligence Hub — only visible when lease data exists */}
+      {hasLease && (moveOutChecklistTotal > 0 || cleaningTotal > 0 || lease.keyReturnInstructions) && (
+        <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible" className="mt-6">
+          <div className="rounded-2xl border bg-gradient-to-br from-violet-500/5 to-transparent p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-5">
+              <Sparkles className="h-4 w-4 text-violet-600" />
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                From Your Lease
+              </h2>
+              <span className="ml-auto text-xs text-muted-foreground">
+                Powering your timeline, budget & checklist
+              </span>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {/* Move-out checklist card */}
+              {moveOutChecklistTotal > 0 && (
+                <Link href="/dashboard/lease" className="block">
+                  <div className="group rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:border-violet-300">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CheckCircle2 className="h-4 w-4 text-violet-600" />
+                      <p className="text-sm font-semibold">Move-Out Requirements</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      {lease.moveOutChecklist!.slice(0, 3).map((item, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                          <Circle className="h-3 w-3 mt-0.5 shrink-0" />
+                          <span className="line-clamp-1">{item}</span>
+                        </div>
+                      ))}
+                      {moveOutChecklistTotal > 3 && (
+                        <p className="text-xs text-violet-600 font-medium">
+                          +{moveOutChecklistTotal - 3} more items
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              )}
+
+              {/* Cleaning requirements card */}
+              {cleaningTotal > 0 && (
+                <Link href="/dashboard/lease" className="block">
+                  <div className="group rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:border-violet-300">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Droplets className="h-4 w-4 text-blue-500" />
+                      <p className="text-sm font-semibold">Cleaning Required</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      {lease.cleaningRequirements!.slice(0, 3).map((item, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+                          <Circle className="h-3 w-3 mt-0.5 shrink-0" />
+                          <span className="line-clamp-1">{item}</span>
+                        </div>
+                      ))}
+                      {cleaningTotal > 3 && (
+                        <p className="text-xs text-blue-500 font-medium">
+                          +{cleaningTotal - 3} more items
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              )}
+
+              {/* Key return card */}
+              {lease.keyReturnInstructions && (
+                <Link href="/dashboard/lease" className="block">
+                  <div className="group rounded-xl border bg-card p-4 transition-all hover:shadow-md hover:border-violet-300">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Key className="h-4 w-4 text-amber-500" />
+                      <p className="text-sm font-semibold">Key Return</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-3">
+                      {lease.keyReturnInstructions}
+                    </p>
+                  </div>
+                </Link>
+              )}
+            </div>
+          </div>
+        </motion.div>
+      )}
+
+      {/* No lease — encourage upload */}
+      {!hasLease && (
+        <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible" className="mt-6">
+          <Link href="/dashboard/lease" className="block">
+            <div className="rounded-2xl border-2 border-dashed border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-950/10 p-6 text-center transition-all hover:border-violet-400 hover:shadow-md">
+              <Upload className="mx-auto h-8 w-8 text-violet-400 mb-3" />
+              <p className="text-base font-semibold text-violet-900 dark:text-violet-200">
+                Upload your lease to unlock smart insights
+              </p>
+              <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">
+                Our AI will extract move-out dates, deposit details, cleaning requirements, and more — then feed it all into your timeline and budget automatically.
+              </p>
+              <Button variant="outline" size="sm" className="mt-4 gap-2 border-violet-300 text-violet-700 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/20">
+                <FileText className="h-3.5 w-3.5" />
+                Upload Lease
+              </Button>
+            </div>
+          </Link>
+        </motion.div>
+      )}
 
       {/* What's next — single focused card */}
       {nextMilestone && (
-        <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible" className="mt-6">
+        <motion.div custom={7} variants={fadeUp} initial="hidden" animate="visible" className="mt-6">
           <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <div className="flex items-center gap-2 mb-4">
               <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -258,13 +420,15 @@ export default function DashboardPage() {
               </div>
             </button>
 
-            {/* Preview of next 2 milestones */}
             {data.milestones
               .filter((m) => !m.isCompleted && m.id !== nextMilestone.id)
               .sort((a, b) => new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime())
               .slice(0, 2)
               .map((m) => (
-                <div key={m.id} className="mt-2 flex items-center gap-4 rounded-xl px-5 py-3 text-sm text-muted-foreground">
+                <div
+                  key={m.id}
+                  className="mt-2 flex items-center gap-4 rounded-xl px-5 py-3 text-sm text-muted-foreground"
+                >
                   <Circle className="h-4 w-4 shrink-0" />
                   <span className="truncate">{m.title}</span>
                   <span className="ml-auto shrink-0 text-xs">{formatDate(m.targetDate)}</span>
@@ -284,7 +448,7 @@ export default function DashboardPage() {
 
       {/* Recently completed */}
       {completedCount > 0 && (
-        <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible" className="mt-6">
+        <motion.div custom={8} variants={fadeUp} initial="hidden" animate="visible" className="mt-6">
           <div className="rounded-2xl border bg-card p-6 shadow-sm">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4">
               Recently completed
@@ -294,7 +458,10 @@ export default function DashboardPage() {
                 .filter((m) => m.isCompleted)
                 .slice(0, 3)
                 .map((m) => (
-                  <div key={m.id} className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm">
+                  <div
+                    key={m.id}
+                    className="flex items-center gap-3 rounded-xl px-4 py-2.5 text-sm"
+                  >
                     <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                     <span className="text-muted-foreground line-through truncate">{m.title}</span>
                   </div>
@@ -305,7 +472,7 @@ export default function DashboardPage() {
       )}
 
       {/* Quick links */}
-      <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible" className="mt-6">
+      <motion.div custom={9} variants={fadeUp} initial="hidden" animate="visible" className="mt-6">
         <div className="grid gap-3 sm:grid-cols-2">
           <Link
             href="/dashboard/checklist"
@@ -334,19 +501,6 @@ export default function DashboardPage() {
             <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </Link>
           <Link
-            href="/dashboard/lease"
-            className="group flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20"
-          >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
-              <FileText className="h-5 w-5 text-violet-600" />
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-sm">Upload Your Lease</p>
-              <p className="text-xs text-muted-foreground">AI extracts dates, deposits & move-out tasks</p>
-            </div>
-            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-          </Link>
-          <Link
             href="/dashboard/photos"
             className="group flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20"
           >
@@ -368,7 +522,7 @@ export default function DashboardPage() {
             </div>
             <div className="flex-1">
               <p className="font-medium text-sm">Track Expenses</p>
-              <p className="text-xs text-muted-foreground">Connect your bank or log spending manually</p>
+              <p className="text-xs text-muted-foreground">Connect your bank or log spending</p>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </Link>
@@ -381,7 +535,22 @@ export default function DashboardPage() {
             </div>
             <div className="flex-1">
               <p className="font-medium text-sm">Find Movers</p>
-              <p className="text-xs text-muted-foreground">AI-matched companies for your route & budget</p>
+              <p className="text-xs text-muted-foreground">AI-matched companies for your route</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Link>
+          <Link
+            href="/dashboard/lease"
+            className="group flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
+              <FileText className="h-5 w-5 text-violet-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-sm">{hasLease ? "Lease Details" : "Upload Your Lease"}</p>
+              <p className="text-xs text-muted-foreground">
+                {hasLease ? "View extracted data & requirements" : "AI extracts dates, deposits & tasks"}
+              </p>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </Link>
@@ -389,4 +558,18 @@ export default function DashboardPage() {
       </motion.div>
     </div>
   );
+}
+
+/** Computes how many days remain before the required notice deadline. */
+function computeNoticeDaysLeft(leaseEndDate: string, noticeRequired: string): number {
+  const endDate = new Date(leaseEndDate);
+  const daysMatch = noticeRequired.match(/(\d+)\s*day/i);
+  const noticeDays = daysMatch ? parseInt(daysMatch[1]) : 30;
+
+  const noticeDeadline = new Date(endDate);
+  noticeDeadline.setDate(noticeDeadline.getDate() - noticeDays);
+
+  const now = new Date();
+  const diff = noticeDeadline.getTime() - now.getTime();
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
 }
