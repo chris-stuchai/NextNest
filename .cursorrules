@@ -1,0 +1,101 @@
+# NextNest — Cursor Rules
+
+## Project Overview
+NextNest is a consumer relocation planning platform. Users complete a conversational intake, receive a personalized move plan, and track progress via a dashboard. MVP focus: intake -> plan generation -> dashboard -> magic link auth.
+
+## Tech Stack
+- **Framework:** Next.js 14+ (App Router)
+- **Language:** TypeScript (strict mode)
+- **Styling:** TailwindCSS v4 + shadcn/ui
+- **Database:** PostgreSQL on Railway
+- **ORM:** Drizzle ORM
+- **Auth:** Auth.js v5 (magic link via Resend, no passwords)
+- **Email:** Resend (magic links + move reminders)
+- **Validation:** Zod (runtime input/payload validation)
+- **Deployment:** Railway (web app + database)
+- **iOS:** Capacitor 5+ (live URL mode)
+
+## Architecture Rules
+- Use the App Router (`/app` directory). No Pages Router.
+- All components are functional with hooks. No class components.
+- Server Components by default. Add `"use client"` only when needed.
+- Co-locate route-specific components: `/app/(routes)/feature/_components/`
+- Shared UI in `/components/ui/`. Shared logic in `/lib/`. Types in `/types/`.
+- One component per file. File name matches export name (PascalCase).
+
+## File Structure
+```
+/src
+  /app                — App Router pages and API routes
+  /components/ui      — shadcn/ui components
+  /components/landing — Landing page sections
+  /components/intake  — Intake step components
+  /components/dashboard — Dashboard widgets
+  /components/admin   — Admin components
+  /components/layout  — Navbar, Footer, Sidebar
+  /lib/db             — Drizzle client + schema + migrations
+  /lib                — Utilities, auth config, email, plan engine
+  /hooks              — Custom React hooks
+  /types              — TypeScript interfaces
+  /constants          — App-wide constants
+```
+
+## Sprint Protocol
+1. **Plan** — Discuss in Ask Mode. Define types/interfaces FIRST.
+2. **Scaffold** — Create file structure and types.
+3. **Implement** — Build logic. One feature per session.
+4. **Validate** — Run lint, type-check, build. Fix all errors.
+5. **Review** — Check edge cases, error handling, accessibility.
+
+## Validation Commands
+After every meaningful change, run:
+```
+npm run lint
+npx tsc --noEmit
+npm run build
+```
+
+## Code Standards
+- async/await only. No `.then()` chains.
+- All functions have JSDoc docstrings.
+- No `any` type. Use `unknown` + type guards when uncertain.
+- Error boundaries around every route segment.
+- API routes return typed responses: `{ data, error, status }`.
+- Zod validation on all user inputs and API payloads.
+- Loading and error states for every async operation.
+
+## Naming Conventions
+- Components: PascalCase (`MoveCountdown.tsx`)
+- Hooks: camelCase with `use` prefix (`useMoveTimeline.ts`)
+- Utils/lib: camelCase (`calculateReadinessScore.ts`)
+- Types: PascalCase (`IntakeFormData`, `TimelineMilestone`)
+- API routes: kebab-case folders (`/api/generate-plan/route.ts`)
+- Database columns: snake_case
+
+## UI/UX Standards
+- Design: calm, clean, encouraging. Airbnb-inspired.
+- TailwindCSS only. No inline styles.
+- Consistent spacing: `p-4`, `gap-4`, `space-y-4` baseline.
+- Mobile-first responsive. Test at 375px, 768px, 1280px.
+- Interactive elements must have hover/focus/active states.
+- Skeleton loaders for async content. No layout shift.
+- Warm neutrals + teal accent. No harsh or corporate tones.
+
+## Database Conventions
+- All tables: `id` (UUID), `created_at`, `updated_at`.
+- Drizzle ORM for all queries. No raw SQL unless justified.
+- Client: `/lib/db/index.ts`. Schema: `/lib/db/schema.ts`.
+- Never expose database credentials to the client.
+
+## Git Discipline
+- Branch naming: `feature/intake-flow`, `fix/dashboard-countdown`.
+- Conventional commits: `feat:`, `fix:`, `refactor:`, `chore:`.
+- New Composer session per feature. Don't carry stale context.
+- Update these rules when new conventions emerge.
+
+## What NOT to Do
+- Don't install packages without justification.
+- Don't abstract "for the future." Build for the current sprint.
+- Don't write comments that narrate code. Comments explain WHY.
+- Don't skip error handling.
+- Don't store sensitive data in localStorage.
