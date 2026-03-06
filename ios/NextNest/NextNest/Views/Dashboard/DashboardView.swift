@@ -7,19 +7,21 @@ struct DashboardView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.needsIntake {
-                    IntakeFlowView(onComplete: { await viewModel.loadDashboard() })
-                } else if let _ = viewModel.dashboardData {
-                    dashboardContent
-                } else if let error = viewModel.error {
-                    errorState(error)
-                } else {
-                    loadingState
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                Group {
+                    if viewModel.needsIntake {
+                        IntakeFlowView(onComplete: { await viewModel.loadDashboard() })
+                    } else if let _ = viewModel.dashboardData {
+                        dashboardContent
+                    } else if let error = viewModel.error {
+                        errorState(error)
+                    } else {
+                        loadingState
+                    }
                 }
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Theme.background)
             .navigationTitle("NextNest")
             .navigationBarTitleDisplayMode(.large)
             .task { await viewModel.loadDashboard() }
@@ -193,12 +195,15 @@ struct DashboardView: View {
 
     private var loadingState: some View {
         VStack(spacing: Theme.Spacing.md) {
-            ProgressView().scaleEffect(1.2)
+            ProgressView()
+                .scaleEffect(1.5)
+                .tint(Theme.accent)
             Text("Loading your plan...")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(.body.weight(.medium))
+                .foregroundStyle(.primary)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+        .background(Theme.secondaryBackground)
     }
 
     private func errorState(_ message: String) -> some View {

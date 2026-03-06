@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 final class DashboardViewModel: ObservableObject {
     @Published var dashboardData: DashboardData?
-    @Published var isLoading = false
+    @Published var isLoading = true
     @Published var error: String?
     @Published var needsIntake = false
 
