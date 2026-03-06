@@ -2,16 +2,11 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, MapPin, Calendar, TrendingUp } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { HouseToRocket } from "@/components/animations/HouseToRocket";
 
-const floatingCards = [
-  { icon: MapPin, label: "San Francisco → Austin", color: "bg-blue-50 text-blue-600", delay: 0 },
-  { icon: Calendar, label: "142 days until move", color: "bg-emerald-50 text-emerald-600", delay: 1.5 },
-  { icon: TrendingUp, label: "Readiness: 73%", color: "bg-amber-50 text-amber-600", delay: 3 },
-];
-
-/** Full-width hero with animated gradient, staggered text, and floating UI cards. */
+/** Full-width hero with animated gradient, staggered text, and house-to-rocket animation. */
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden py-24 sm:py-32 lg:py-40">
@@ -87,90 +82,14 @@ export function HeroSection() {
             </motion.div>
           </div>
 
-          {/* Right: Floating dashboard preview cards */}
+          {/* Right: House-to-Rocket animation */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="relative hidden lg:block"
+            className="relative hidden lg:flex items-center justify-center"
           >
-            <div className="relative mx-auto w-full max-w-md">
-              {/* Main card */}
-              <div className="glass rounded-2xl p-6 shadow-xl shadow-black/5">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-lg font-bold text-primary">N</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">My Relocation Plan</p>
-                    <p className="text-xs text-muted-foreground">San Francisco → Austin, TX</p>
-                  </div>
-                </div>
-
-                {/* Progress bar */}
-                <div className="space-y-2 mb-6">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Move readiness</span>
-                    <span className="font-semibold text-primary">73%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-muted">
-                    <motion.div
-                      className="h-full rounded-full bg-gradient-to-r from-primary to-primary/70"
-                      initial={{ width: "0%" }}
-                      animate={{ width: "73%" }}
-                      transition={{ duration: 1.2, delay: 0.8, ease: "easeOut" }}
-                    />
-                  </div>
-                </div>
-
-                {/* Mini milestones */}
-                <div className="space-y-3">
-                  {["Research neighborhoods", "Get pre-approved", "Book moving company"].map((item, i) => (
-                    <div key={item} className="flex items-center gap-3 text-sm">
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 1 + i * 0.15 }}
-                        className={`h-5 w-5 rounded-full flex items-center justify-center text-xs ${
-                          i === 0
-                            ? "bg-primary text-primary-foreground"
-                            : "border-2 border-muted-foreground/20"
-                        }`}
-                      >
-                        {i === 0 && "✓"}
-                      </motion.div>
-                      <span className={i === 0 ? "line-through text-muted-foreground" : ""}>
-                        {item}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Floating notification cards */}
-              {floatingCards.map((card, i) => (
-                <motion.div
-                  key={card.label}
-                  initial={{ opacity: 0, y: 20, x: i % 2 === 0 ? -20 : 20 }}
-                  animate={{ opacity: 1, y: 0, x: 0 }}
-                  transition={{ delay: 1.2 + i * 0.2, duration: 0.5 }}
-                  className={`absolute glass rounded-xl px-4 py-3 shadow-lg shadow-black/5 ${
-                    i === 0
-                      ? "-top-4 -left-8"
-                      : i === 1
-                        ? "top-1/3 -right-10"
-                        : "-bottom-4 -left-4"
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className={`rounded-lg p-1.5 ${card.color}`}>
-                      <card.icon className="h-3.5 w-3.5" />
-                    </div>
-                    <span className="text-xs font-medium whitespace-nowrap">{card.label}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            <HouseToRocket />
           </motion.div>
         </div>
       </div>
