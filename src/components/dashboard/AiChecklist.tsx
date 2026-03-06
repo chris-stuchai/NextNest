@@ -38,7 +38,7 @@ export function AiChecklist() {
     try {
       const response = await fetch("/api/ai/checklist", { method: "POST" });
       const json = await response.json();
-      if (json.data) {
+      if (Array.isArray(json.data)) {
         setChecklist(json.data);
         setIsGenerated(true);
         setCompleted(new Set());

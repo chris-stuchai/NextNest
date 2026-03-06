@@ -304,7 +304,7 @@ export default function DashboardPage() {
                       <p className="text-sm font-semibold">Move-Out Requirements</p>
                     </div>
                     <div className="space-y-1.5">
-                      {lease.moveOutChecklist!.slice(0, 3).map((item, i) => (
+                      {(lease.moveOutChecklist ?? []).slice(0, 3).map((item, i) => (
                         <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
                           <Circle className="h-3 w-3 mt-0.5 shrink-0" />
                           <span className="line-clamp-1">{item}</span>
@@ -329,7 +329,7 @@ export default function DashboardPage() {
                       <p className="text-sm font-semibold">Cleaning Required</p>
                     </div>
                     <div className="space-y-1.5">
-                      {lease.cleaningRequirements!.slice(0, 3).map((item, i) => (
+                      {(lease.cleaningRequirements ?? []).slice(0, 3).map((item, i) => (
                         <div key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
                           <Circle className="h-3 w-3 mt-0.5 shrink-0" />
                           <span className="line-clamp-1">{item}</span>

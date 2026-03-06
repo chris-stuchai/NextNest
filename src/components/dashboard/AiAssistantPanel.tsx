@@ -9,7 +9,7 @@ import { X, Send, Loader2, Bot, User, Mic, MicOff, Phone, PhoneOff } from "lucid
 import { motion, AnimatePresence } from "framer-motion";
 
 function getMessageText(message: UIMessage): string {
-  return message.parts
+  return (message.parts ?? [])
     .filter((p): p is { type: "text"; text: string } => p.type === "text")
     .map((p) => p.text)
     .join("");

@@ -95,7 +95,7 @@ export function NeighborhoodComparison() {
           Key Differences
         </h4>
         <ul className="space-y-1.5">
-          {data.keyDifferences.map((diff, i) => (
+          {(data.keyDifferences ?? []).map((diff, i) => (
             <li key={i} className="flex items-start gap-2 text-sm">
               <ArrowRight className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
               <span>{diff}</span>
@@ -111,7 +111,7 @@ export function NeighborhoodComparison() {
           Adjustment Tips
         </h4>
         <ul className="space-y-1.5">
-          {data.tips.map((tip, i) => (
+          {(data.tips ?? []).map((tip, i) => (
             <li key={i} className="text-sm text-muted-foreground">{tip}</li>
           ))}
         </ul>
@@ -151,7 +151,7 @@ function LocationCard({ location, label }: { location: LocationProfile; label: s
       <div>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">Highlights</p>
         <div className="flex flex-wrap gap-1">
-          {location.highlights.map((h, i) => (
+          {(location.highlights ?? []).map((h, i) => (
             <span key={i} className="rounded-full bg-muted px-2 py-0.5 text-[11px]">{h}</span>
           ))}
         </div>

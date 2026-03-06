@@ -12,9 +12,11 @@ interface BudgetOverviewProps {
 }
 
 /** Animated budget breakdown with progress bars and staggered reveal. */
-export function BudgetOverview({ items }: BudgetOverviewProps) {
+export function BudgetOverview({ items = [] }: BudgetOverviewProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
+
+  if (!items || items.length === 0) return null;
 
   const totalLow = items.reduce((sum, item) => sum + item.estimatedLow, 0);
   const totalHigh = items.reduce((sum, item) => sum + item.estimatedHigh, 0);
