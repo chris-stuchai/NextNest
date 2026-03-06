@@ -16,6 +16,8 @@ import {
   MapPin,
   TrendingUp,
   Clock,
+  FileText,
+  Camera,
 } from "lucide-react";
 import Link from "next/link";
 import { formatDate, formatCurrency } from "@/lib/utils";
@@ -326,6 +328,32 @@ export default function DashboardPage() {
             <div className="flex-1">
               <p className="font-medium text-sm">Get Moving Quotes</p>
               <p className="text-xs text-muted-foreground">AI calls companies for you</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Link>
+          <Link
+            href="/dashboard/lease"
+            className="group flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-500/10">
+              <FileText className="h-5 w-5 text-violet-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-sm">Upload Your Lease</p>
+              <p className="text-xs text-muted-foreground">AI extracts dates, deposits & move-out tasks</p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          </Link>
+          <Link
+            href="/dashboard/photos"
+            className="group flex items-center gap-4 rounded-2xl border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:border-primary/20"
+          >
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10">
+              <Camera className="h-5 w-5 text-sky-600" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium text-sm">Document Move-Out</p>
+              <p className="text-xs text-muted-foreground">Photos & video to protect your deposit</p>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </Link>

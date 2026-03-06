@@ -184,6 +184,45 @@ export const movingQuotes = pgTable("moving_quotes", {
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 });
 
+export const leaseDocuments = pgTable("lease_documents", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  fileName: text("file_name").notNull(),
+  fileType: text("file_type").notNull(),
+  fileSize: integer("file_size").notNull(),
+  extractedData: jsonb("extracted_data"),
+  status: text("status").default("pending").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const moveOutPhotos = pgTable("move_out_photos", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  room: text("room").notNull(),
+  caption: text("caption"),
+  imageData: text("image_data").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const userBudgets = pgTable("user_budgets", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  totalBudget: integer("total_budget").notNull(),
+  housingBudget: integer("housing_budget"),
+  movingBudget: integer("moving_budget"),
+  travelBudget: integer("travel_budget"),
+  emergencyFund: integer("emergency_fund"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
 export const notificationLog = pgTable("notification_log", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")
