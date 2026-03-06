@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect, useCallback, type FormEvent } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo, type FormEvent } from "react";
 import { useChat, type UIMessage } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { X, Send, Loader2, Bot, User, Mic, MicOff, Phone, PhoneOff } from "lucide-react";
@@ -41,8 +42,14 @@ export function AiAssistantPanel({ open, onClose }: AiAssistantPanelProps) {
     ],
   };
 
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: "/api/ai/chat" }),
+    []
+  );
+
   const { messages, sendMessage, status, error } = useChat({
     id: "move-advisor",
+    transport,
     messages: [welcomeMessage],
   });
 

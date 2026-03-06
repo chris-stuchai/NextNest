@@ -28,11 +28,11 @@ export function BudgetOverview({ items }: BudgetOverviewProps) {
   const categoryEntries = Object.entries(grouped);
 
   return (
-    <Card ref={ref}>
+    <Card ref={ref} className="rounded-2xl shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Budget Overview</CardTitle>
-        <div className="rounded-lg bg-primary/10 p-1.5">
-          <DollarSign className="h-4 w-4 text-primary" />
+        <CardTitle className="text-base">Budget Overview</CardTitle>
+        <div className="rounded-xl bg-emerald-500/10 p-2">
+          <DollarSign className="h-4 w-4 text-emerald-600" />
         </div>
       </CardHeader>
       <CardContent className="space-y-6">

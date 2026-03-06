@@ -26,10 +26,10 @@ import {
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { label: "Timeline", href: "/dashboard#timeline", icon: CalendarDays },
-  { label: "Budget", href: "/dashboard#budget", icon: DollarSign },
-  { label: "Checklist", href: "/dashboard#checklist", icon: ClipboardList },
-  { label: "Locations", href: "/dashboard#locations", icon: MapPin },
+  { label: "Timeline", href: "/dashboard/timeline", icon: CalendarDays },
+  { label: "Budget", href: "/dashboard/budget", icon: DollarSign },
+  { label: "Checklist", href: "/dashboard/checklist", icon: ClipboardList },
+  { label: "Quotes", href: "/dashboard/quotes", icon: MapPin },
 ];
 
 const bottomItems = [
@@ -90,7 +90,7 @@ export function Sidebar({ onOpenAssistant }: SidebarProps) {
       {/* Main nav */}
       <nav className="flex-1 space-y-1 p-3">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.href}

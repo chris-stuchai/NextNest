@@ -37,23 +37,25 @@ export function TimelineView({
     : 0;
 
   return (
-    <Card>
+    <Card className="rounded-2xl shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Relocation Timeline</CardTitle>
+          <CardTitle className="text-base">Relocation Timeline</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            {completed} of {milestones.length} complete ({percentage}%)
+            {completed} of {milestones.length} complete
           </p>
         </div>
-        {/* Mini progress */}
-        <div className="w-20">
-          <div className="h-1.5 overflow-hidden rounded-full bg-muted">
-            <motion.div
-              className="h-full rounded-full bg-primary"
-              initial={{ width: "0%" }}
-              animate={{ width: `${percentage}%` }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            />
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-semibold text-primary tabular-nums">{percentage}%</span>
+          <div className="w-20">
+            <div className="h-2 overflow-hidden rounded-full bg-muted">
+              <motion.div
+                className="h-full rounded-full bg-primary"
+                initial={{ width: "0%" }}
+                animate={{ width: `${percentage}%` }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              />
+            </div>
           </div>
         </div>
       </CardHeader>
