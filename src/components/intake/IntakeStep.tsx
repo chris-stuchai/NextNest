@@ -55,7 +55,7 @@ export function IntakeStepComponent({
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your answer..."
-            className="h-14 rounded-xl border-2 text-lg transition-colors focus:border-primary"
+            className="h-14 rounded-xl text-lg"
             autoFocus
           />
         )}
@@ -66,7 +66,7 @@ export function IntakeStepComponent({
             value={stringValue}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="h-14 rounded-xl border-2 text-lg transition-colors focus:border-primary"
+            className="h-14 rounded-xl text-lg"
             min={new Date().toISOString().split("T")[0]}
             autoFocus
           />
@@ -80,7 +80,7 @@ export function IntakeStepComponent({
             onKeyDown={handleKeyDown}
             min={1}
             max={20}
-            className="h-14 w-32 rounded-xl border-2 text-lg transition-colors focus:border-primary"
+            className="h-14 w-32 rounded-xl text-lg"
             autoFocus
           />
         )}

@@ -4,9 +4,11 @@ import { Logo } from "@/components/ui/logo";
 const navigation = {
   product: [
     { name: "Build My Move Plan", href: "/intake" },
+    { name: "Pricing", href: "/pricing" },
     { name: "Dashboard", href: "/dashboard" },
   ],
-  support: [
+  company: [
+    { name: "About", href: "/about" },
     { name: "Sign In", href: "/login" },
     { name: "Create Account", href: "/signup" },
   ],
@@ -48,11 +50,11 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Support */}
+          {/* Company */}
           <div className="space-y-4">
-            <h4 className="text-sm font-semibold">Support</h4>
+            <h4 className="text-sm font-semibold">Company</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
-              {navigation.support.map((item) => (
+              {navigation.company.map((item) => (
                 <li key={item.name}>
                   <Link
                     href={item.href}

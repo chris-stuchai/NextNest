@@ -5,48 +5,23 @@ interface LogoMarkProps {
   size?: "sm" | "md" | "lg";
 }
 
-/**
- * NextNest logomark — a clean house silhouette with a curved road
- * extending from its base, representing the journey to your next home.
- */
+/** NextNest logomark — a bold "N" in a rounded square. */
 export function LogoMark({ className, size = "sm" }: LogoMarkProps) {
   const sizes = {
-    sm: "h-8 w-8",
-    md: "h-10 w-10",
-    lg: "h-14 w-14",
+    sm: "h-8 w-8 text-lg",
+    md: "h-10 w-10 text-xl",
+    lg: "h-14 w-14 text-3xl",
   };
 
   return (
     <div
       className={cn(
-        "flex items-center justify-center rounded-xl bg-primary text-primary-foreground",
+        "flex items-center justify-center rounded-xl bg-primary text-primary-foreground font-bold select-none",
         sizes[size],
         className
       )}
     >
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        className={cn(
-          size === "sm" ? "h-5 w-5" : size === "md" ? "h-6 w-6" : "h-9 w-9"
-        )}
-      >
-        {/* House: peaked roof + walls */}
-        <path
-          d="M2 13L10 5L18 13M5 13V20H15V13"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        {/* Road curving away from house */}
-        <path
-          d="M15 20C17.5 20 20 19 22 17.5"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-      </svg>
+      N
     </div>
   );
 }

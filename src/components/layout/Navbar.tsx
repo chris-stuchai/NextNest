@@ -55,6 +55,14 @@ export function Navbar() {
         </Link>
 
         <nav className="flex items-center gap-3">
+          <div className="hidden items-center gap-1 sm:flex">
+            <Button variant="ghost" asChild className="text-sm text-muted-foreground">
+              <Link href="/pricing">Pricing</Link>
+            </Button>
+            <Button variant="ghost" asChild className="text-sm text-muted-foreground">
+              <Link href="/about">About</Link>
+            </Button>
+          </div>
           {session ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
