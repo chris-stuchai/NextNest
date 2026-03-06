@@ -15,6 +15,8 @@
     "ios:build": "npm run build && npx cap sync ios && npx cap open ios"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.41",
+    "@ai-sdk/react": "^3.0.118",
     "@auth/drizzle-adapter": "^1.11.1",
     "@capacitor/app": "^8.0.1",
     "@capacitor/browser": "^8.0.1",
@@ -26,9 +28,11 @@
     "@capacitor/splash-screen": "^8.0.1",
     "@capacitor/status-bar": "^8.0.1",
     "@react-email/components": "^1.0.8",
+    "ai": "^6.0.116",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",
+    "framer-motion": "^12.35.0",
     "lucide-react": "^0.577.0",
     "next": "16.1.6",
     "next-auth": "^5.0.0-beta.30",

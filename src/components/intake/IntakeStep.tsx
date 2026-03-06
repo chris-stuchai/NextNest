@@ -2,6 +2,8 @@
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ArrowRight, ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import type { IntakeStep as IntakeStepType } from "@/types";
 
 interface IntakeStepProps {
@@ -14,7 +16,7 @@ interface IntakeStepProps {
   isLast: boolean;
 }
 
-/** Renders a single intake question with appropriate input type. */
+/** Renders a single intake question with polished interactions and hover states. */
 export function IntakeStepComponent({
   step,
   value,
@@ -35,11 +37,13 @@ export function IntakeStepComponent({
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
           {step.question}
         </h2>
         {step.subtitle && (
-          <p className="text-muted-foreground">{step.subtitle}</p>
+          <p className="text-muted-foreground text-base sm:text-lg">
+            {step.subtitle}
+          </p>
         )}
       </div>
 
@@ -51,7 +55,7 @@ export function IntakeStepComponent({
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your answer..."
-            className="text-lg py-6"
+            className="h-14 rounded-xl border-2 text-lg transition-colors focus:border-primary"
             autoFocus
           />
         )}
@@ -62,7 +66,7 @@ export function IntakeStepComponent({
             value={stringValue}
             onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="text-lg py-6"
+            className="h-14 rounded-xl border-2 text-lg transition-colors focus:border-primary"
             min={new Date().toISOString().split("T")[0]}
             autoFocus
           />
@@ -76,7 +80,7 @@ export function IntakeStepComponent({
             onKeyDown={handleKeyDown}
             min={1}
             max={20}
-            className="text-lg py-6 w-32"
+            className="h-14 w-32 rounded-xl border-2 text-lg transition-colors focus:border-primary"
             autoFocus
           />
         )}
@@ -84,39 +88,49 @@ export function IntakeStepComponent({
         {step.type === "select" && step.options && (
           <div className="grid gap-3 sm:grid-cols-2">
             {step.options.map((option) => (
-              <button
+              <motion.button
                 key={option.value}
                 type="button"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   onChange(option.value);
                   setTimeout(onNext, 300);
                 }}
-                className={`rounded-xl border-2 p-4 text-left transition-all hover:border-primary/50 ${
+                className={`rounded-2xl border-2 p-5 text-left transition-all duration-200 ${
                   stringValue === option.value
-                    ? "border-primary bg-primary/5"
-                    : "border-border"
+                    ? "border-primary bg-primary/5 shadow-sm shadow-primary/10"
+                    : "border-border hover:border-primary/40 hover:bg-muted/50"
                 }`}
               >
-                <span className="font-medium">{option.label}</span>
-              </button>
+                <span className="font-medium text-base">{option.label}</span>
+              </motion.button>
             ))}
           </div>
         )}
       </div>
 
-      {step.encouragement && stringValue && (
-        <p className="text-sm text-primary font-medium animate-in fade-in slide-in-from-bottom-2 duration-500">
-          {step.encouragement}
-        </p>
-      )}
+      <AnimatePresence>
+        {step.encouragement && stringValue && (
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="text-sm text-primary font-medium"
+          >
+            {step.encouragement}
+          </motion.p>
+        )}
+      </AnimatePresence>
 
       <div className="flex items-center justify-between pt-4">
         <Button
           variant="ghost"
           onClick={onBack}
           disabled={isFirst}
-          className={isFirst ? "invisible" : ""}
+          className={`gap-2 ${isFirst ? "invisible" : ""}`}
         >
+          <ArrowLeft className="h-4 w-4" />
           Back
         </Button>
         {step.type !== "select" && (
@@ -124,8 +138,10 @@ export function IntakeStepComponent({
             onClick={onNext}
             disabled={!stringValue && step.field !== "topConcern"}
             size="lg"
+            className="gap-2 rounded-full px-6"
           >
             {isLast ? "Build My Plan" : "Continue"}
+            <ArrowRight className="h-4 w-4" />
           </Button>
         )}
       </div>

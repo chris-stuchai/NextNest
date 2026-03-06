@@ -27,7 +27,8 @@ export async function POST(request: Request) {
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    // SECURITY: always require a valid CRON_SECRET — reject if missing or mismatched
+    if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json<ApiResponse>(
         { data: null, error: "Unauthorized", status: 401 },
         { status: 401 }

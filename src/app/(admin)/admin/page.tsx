@@ -28,6 +28,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchAdminData() {
@@ -40,10 +41,13 @@ export default function AdminPage() {
         const statsData = await statsRes.json();
         const usersData = await usersRes.json();
 
+        if (statsData.error || usersData.error) {
+          setError(statsData.error ?? usersData.error);
+        }
         if (statsData.data) setStats(statsData.data);
         if (usersData.data) setAdminUsers(usersData.data);
-      } catch (error) {
-        console.error("Admin fetch error:", error);
+      } catch {
+        setError("Failed to load admin data. Please try refreshing.");
       } finally {
         setIsLoading(false);
       }
@@ -71,6 +75,12 @@ export default function AdminPage() {
       <h1 className="text-2xl font-bold tracking-tight mb-8">
         Admin Dashboard
       </h1>
+
+      {error && (
+        <div className="mb-6 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3" role="alert">
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
 
       {stats && <StatsCards stats={stats} />}
 

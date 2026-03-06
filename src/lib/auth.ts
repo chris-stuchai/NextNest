@@ -15,6 +15,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
 
   return {
     secret: process.env.AUTH_SECRET,
+    trustHost: true,
     adapter: DrizzleAdapter(db, {
       usersTable: users,
       accountsTable: accounts,
@@ -54,6 +55,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
     },
     session: {
       strategy: "database" as const,
+      maxAge: 30 * 24 * 60 * 60, // 30 days
+      updateAge: 24 * 60 * 60,   // refresh session token every 24h
     },
     callbacks: {
       async session({ session, user }) {

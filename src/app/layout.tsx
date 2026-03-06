@@ -5,6 +5,7 @@ import { SessionProvider } from "@/components/layout/SessionProvider";
 import { NativeProvider } from "@/components/layout/NativeProvider";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { CookieConsent } from "@/components/layout/CookieConsent";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -41,6 +42,7 @@ export default function RootLayout({
                 <Navbar />
                 <main className="flex-1">{children}</main>
                 <Footer />
+                <CookieConsent />
               </div>
             </TooltipProvider>
           </NativeProvider>
