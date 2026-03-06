@@ -11,7 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, LayoutDashboard, Sparkles } from "lucide-react";
+import { LogOut, LayoutDashboard } from "lucide-react";
+import { Logo } from "@/components/ui/logo";
 import { useScrollDirection } from "@/hooks/use-scroll-direction";
 import { motion, useMotionValueEvent, useScroll } from "framer-motion";
 import { useState } from "react";
@@ -49,11 +50,8 @@ export function Navbar() {
       }`}
     >
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="group flex items-center gap-2.5">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-transform duration-300 group-hover:scale-110">
-            <Sparkles className="h-4 w-4" />
-          </div>
-          <span className="text-lg font-bold tracking-tight">NextNest</span>
+        <Link href="/" className="group transition-transform duration-300 hover:scale-[1.02]">
+          <Logo size="sm" />
         </Link>
 
         <nav className="flex items-center gap-3">

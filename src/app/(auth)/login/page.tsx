@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { ArrowRight, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { LogoMark } from "@/components/ui/logo";
 import { Suspense } from "react";
 
 export default function LoginPage() {
@@ -96,9 +97,9 @@ function LoginContent() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10"
+              className="mx-auto"
             >
-              <Sparkles className="h-7 w-7 text-primary" />
+              <LogoMark size="lg" />
             </motion.div>
             <div>
               <CardTitle className="text-2xl font-bold tracking-tight">

@@ -1,5 +1,6 @@
 import { HeroSection } from "@/components/landing/HeroSection";
 import { BenefitsSection } from "@/components/landing/BenefitsSection";
+import { MetricsSection } from "@/components/landing/MetricsSection";
 import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { CtaSection } from "@/components/landing/CtaSection";
 
@@ -9,6 +10,7 @@ export default function HomePage() {
     <>
       <HeroSection />
       <BenefitsSection />
+      <MetricsSection />
       <HowItWorksSection />
       <CtaSection />
     </>
