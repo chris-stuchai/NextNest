@@ -41,6 +41,10 @@ yarn-error.log*
 ios/App/Pods/
 ios/App/App/public/
 
+# SwiftUI iOS app
+ios/NextNest/build/
+ios/NextNest/.build/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

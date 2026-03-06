@@ -1,0 +1,31 @@
+name: NextNest
+options:
+  bundleIdPrefix: com.nextnest
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "17.0"
+  generateEmptyDirectories: true
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "5"
+    DEVELOPMENT_TEAM: 8QRFUD34YW
+    CODE_SIGN_STYLE: Automatic
+    SWIFT_VERSION: "5.0"
+
+targets:
+  NextNest:
+    type: application
+    platform: iOS
+    sources:
+      - NextNest
+    settings:
+      base:
+        INFOPLIST_FILE: NextNest/Info.plist
+        CODE_SIGN_ENTITLEMENTS: NextNest/NextNest.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.nextnest.app
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
+    entitlements:
+      path: NextNest/NextNest.entitlements
