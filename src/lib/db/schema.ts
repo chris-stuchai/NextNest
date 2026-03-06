@@ -249,6 +249,34 @@ export const moveExpenses = pgTable("move_expenses", {
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
+export const movePartners = pgTable("move_partners", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  planId: uuid("plan_id")
+    .references(() => relocationPlans.id, { onDelete: "cascade" })
+    .notNull(),
+  invitedBy: uuid("invited_by")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  email: text("email").notNull(),
+  partnerId: uuid("partner_id").references(() => users.id),
+  status: text("status").default("pending").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const userXp = pgTable("user_xp", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  totalXp: integer("total_xp").default(0).notNull(),
+  level: integer("level").default(1).notNull(),
+  currentStreak: integer("current_streak").default(0).notNull(),
+  longestStreak: integer("longest_streak").default(0).notNull(),
+  lastActiveDate: date("last_active_date", { mode: "string" }),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
 export const notificationLog = pgTable("notification_log", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")

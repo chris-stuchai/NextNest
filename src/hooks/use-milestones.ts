@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-/** Handles milestone completion toggling with optimistic updates. */
+/** Handles milestone completion toggling with XP rewards. */
 export function useMilestones(onUpdate?: () => void) {
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set());
 
@@ -18,6 +18,14 @@ export function useMilestones(onUpdate?: () => void) {
 
       if (!response.ok) {
         throw new Error("Failed to update milestone");
+      }
+
+      if (isCompleted) {
+        await fetch("/api/xp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "milestone_complete" }),
+        });
       }
 
       onUpdate?.();

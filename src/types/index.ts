@@ -12,6 +12,8 @@ import type {
   userBudgets,
   plaidConnections,
   moveExpenses,
+  movePartners,
+  userXp,
 } from "@/lib/db/schema";
 
 // ─── Database Row Types ──────────────────────────────────
@@ -41,6 +43,8 @@ export type MoveOutPhoto = InferSelectModel<typeof moveOutPhotos>;
 export type UserBudget = InferSelectModel<typeof userBudgets>;
 export type PlaidConnection = InferSelectModel<typeof plaidConnections>;
 export type MoveExpense = InferSelectModel<typeof moveExpenses>;
+export type MovePartner = InferSelectModel<typeof movePartners>;
+export type UserXp = InferSelectModel<typeof userXp>;
 
 // ─── Enum Types ──────────────────────────────────────────
 
