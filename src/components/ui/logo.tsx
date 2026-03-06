@@ -6,8 +6,8 @@ interface LogoMarkProps {
 }
 
 /**
- * NextNest logomark — a geometric "N" lettermark in a squircle.
- * Replaces the generic Sparkles icon throughout the app.
+ * NextNest logomark — two "N" letterforms styled as houses with peaked roofs,
+ * connected by a curved road. Tells the NextNest story in a single mark.
  */
 export function LogoMark({ className, size = "sm" }: LogoMarkProps) {
   const sizes = {
@@ -28,12 +28,15 @@ export function LogoMark({ className, size = "sm" }: LogoMarkProps) {
         viewBox="0 0 24 24"
         fill="none"
         className={cn(
-          size === "sm" ? "h-4 w-4" : size === "md" ? "h-5 w-5" : "h-7 w-7"
+          size === "sm" ? "h-5 w-5" : size === "md" ? "h-6 w-6" : "h-9 w-9"
         )}
       >
         <path
-          d="M6 18V6h1.5l9 9.5V6H18v12h-1.5L7.5 8.5V18H6Z"
-          fill="currentColor"
+          d="M2 20V10L6 4L10 10V20M2 10L10 20M14 20V10L18 4L22 10V20M14 10L22 20M10 20C11.5 18.5 12.5 18.5 14 20"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </svg>
     </div>
