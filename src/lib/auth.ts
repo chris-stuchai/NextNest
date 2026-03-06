@@ -14,6 +14,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth(() => {
   const db = getDb();
 
   return {
+    secret: process.env.AUTH_SECRET,
     adapter: DrizzleAdapter(db, {
       usersTable: users,
       accountsTable: accounts,

@@ -3,7 +3,10 @@ import type { CapacitorConfig } from "@capacitor/cli";
 const config: CapacitorConfig = {
   appId: "com.nextnest.app",
   appName: "NextNest",
-  webDir: "out",
+  // In live URL mode Capacitor loads all content from the server URL, not
+  // from local files. webDir must point to an existing directory for
+  // `cap sync` to succeed — `public/` always exists in a Next.js project.
+  webDir: "public",
   server: {
     // In production, point to your deployed Railway URL:
     // url: "https://your-app.railway.app",
