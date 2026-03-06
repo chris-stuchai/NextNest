@@ -9,7 +9,8 @@ import { BudgetOverview } from "@/components/dashboard/BudgetOverview";
 import { AiInsights } from "@/components/dashboard/AiInsights";
 import { AiChecklist } from "@/components/dashboard/AiChecklist";
 import { NeighborhoodComparison } from "@/components/dashboard/NeighborhoodComparison";
-import { MoveAdvisor } from "@/components/dashboard/MoveAdvisor";
+import { MapPreview } from "@/components/dashboard/MapPreview";
+import { MovingQuotes } from "@/components/dashboard/MovingQuotes";
 import { useMilestones } from "@/hooks/use-milestones";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, type Variants } from "framer-motion";
@@ -149,6 +150,10 @@ export default function DashboardPage() {
       </div>
 
       <motion.div variants={itemVariants} className="mt-6">
+        <MapPreview origin={data.intake.movingFrom} destination={data.intake.movingTo} />
+      </motion.div>
+
+      <motion.div variants={itemVariants} className="mt-6">
         <AiInsights />
       </motion.div>
 
@@ -174,7 +179,9 @@ export default function DashboardPage() {
         </motion.div>
       </div>
 
-      <MoveAdvisor />
+      <motion.div variants={itemVariants} className="mt-6">
+        <MovingQuotes />
+      </motion.div>
     </motion.div>
   );
 }

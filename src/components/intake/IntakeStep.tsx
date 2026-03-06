@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { PlacesAutocomplete } from "@/components/intake/PlacesAutocomplete";
 import type { IntakeStep as IntakeStepType } from "@/types";
 
 interface IntakeStepProps {
@@ -14,6 +15,7 @@ interface IntakeStepProps {
   onBack: () => void;
   isFirst: boolean;
   isLast: boolean;
+  error?: string | null;
 }
 
 /** Renders a single intake question with polished interactions and hover states. */
@@ -25,6 +27,7 @@ export function IntakeStepComponent({
   onBack,
   isFirst,
   isLast,
+  error,
 }: IntakeStepProps) {
   const stringValue = String(value ?? "");
 
@@ -49,15 +52,24 @@ export function IntakeStepComponent({
 
       <div className="space-y-4">
         {step.type === "text" && (
-          <Input
-            type="text"
-            value={stringValue}
-            onChange={(e) => onChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Type your answer..."
-            className="h-14 rounded-xl text-lg"
-            autoFocus
-          />
+          isLocationField(step.field) ? (
+            <PlacesAutocomplete
+              value={stringValue}
+              onChange={(v) => onChange(v)}
+              onKeyDown={handleKeyDown}
+              placeholder="Search for a city..."
+            />
+          ) : (
+            <Input
+              type="text"
+              value={stringValue}
+              onChange={(e) => onChange(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your answer..."
+              className="h-14 rounded-xl text-lg"
+              autoFocus
+            />
+          )
         )}
 
         {step.type === "date" && (
@@ -76,7 +88,13 @@ export function IntakeStepComponent({
           <Input
             type="number"
             value={stringValue}
-            onChange={(e) => onChange(parseInt(e.target.value) || 1)}
+            onChange={(e) => {
+              const val = e.target.value;
+              onChange(val === "" ? "" : parseInt(val) || 1);
+            }}
+            onBlur={() => {
+              if (!stringValue || stringValue === "0") onChange(1);
+            }}
             onKeyDown={handleKeyDown}
             min={1}
             max={20}
@@ -123,6 +141,12 @@ export function IntakeStepComponent({
         )}
       </AnimatePresence>
 
+      {error && (
+        <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3" role="alert">
+          <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+
       <div className="flex items-center justify-between pt-4">
         <Button
           variant="ghost"
@@ -147,4 +171,9 @@ export function IntakeStepComponent({
       </div>
     </div>
   );
+}
+
+const locationFields = new Set(["movingFrom", "movingTo"]);
+function isLocationField(field: string): boolean {
+  return locationFields.has(field);
 }

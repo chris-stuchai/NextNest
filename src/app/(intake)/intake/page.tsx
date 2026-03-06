@@ -141,7 +141,7 @@ export default function IntakePage() {
         <IntakeProgress currentStep={currentStep} totalSteps={totalSteps} />
       </motion.div>
 
-      <div className="mt-12 overflow-hidden">
+      <div className="mt-12">
         <AnimatePresence mode="wait" custom={slideDirection}>
           <motion.div
             key={step.id}
@@ -163,6 +163,7 @@ export default function IntakePage() {
               onBack={handleBack}
               isFirst={currentStep === 0}
               isLast={currentStep === totalSteps - 1}
+              error={error}
             />
           </motion.div>
         </AnimatePresence>

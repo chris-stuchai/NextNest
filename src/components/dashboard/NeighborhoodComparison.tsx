@@ -45,7 +45,7 @@ export function NeighborhoodComparison() {
 
   if (!data) {
     return (
-      <div className="rounded-xl border bg-card p-6">
+      <div className="rounded-2xl border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
           <MapPin className="h-4 w-4 text-primary" />
           <h3 className="font-semibold text-sm">Neighborhood Comparison</h3>
@@ -75,7 +75,7 @@ export function NeighborhoodComparison() {
   }
 
   return (
-    <div className="rounded-xl border bg-card p-6">
+    <div className="rounded-2xl border bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 text-primary" />

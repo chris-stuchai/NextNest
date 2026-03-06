@@ -3,9 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionProvider } from "@/components/layout/SessionProvider";
 import { NativeProvider } from "@/components/layout/NativeProvider";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { CookieConsent } from "@/components/layout/CookieConsent";
+import { MarketingLayout } from "@/components/layout/MarketingLayout";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,12 +36,7 @@ export default function RootLayout({
         <SessionProvider>
           <NativeProvider>
             <TooltipProvider>
-              <div className="flex min-h-screen flex-col">
-                <Navbar />
-                <main className="flex-1">{children}</main>
-                <Footer />
-                <CookieConsent />
-              </div>
+              <MarketingLayout>{children}</MarketingLayout>
             </TooltipProvider>
           </NativeProvider>
         </SessionProvider>

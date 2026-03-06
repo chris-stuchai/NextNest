@@ -13,9 +13,9 @@ interface ChecklistItem {
 }
 
 const priorityStyles = {
-  high: "border-l-red-500 bg-red-50 dark:bg-red-950/20",
-  medium: "border-l-amber-500 bg-amber-50 dark:bg-amber-950/20",
-  low: "border-l-green-500 bg-green-50 dark:bg-green-950/20",
+  high: "bg-muted/60",
+  medium: "bg-muted/40",
+  low: "bg-muted/25",
 };
 
 const priorityLabels = {
@@ -66,7 +66,7 @@ export function AiChecklist() {
 
   if (!isGenerated) {
     return (
-      <div className="rounded-xl border bg-card p-6">
+      <div className="rounded-2xl border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
           <ClipboardList className="h-4 w-4 text-primary" />
           <h3 className="font-semibold text-sm">AI Pre-Move Checklist</h3>
@@ -96,7 +96,7 @@ export function AiChecklist() {
   }
 
   return (
-    <div className="rounded-xl border bg-card p-6">
+    <div className="rounded-2xl border bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <ClipboardList className="h-4 w-4 text-primary" />
@@ -115,9 +115,9 @@ export function AiChecklist() {
             key={index}
             onClick={() => toggleItem(index)}
             className={cn(
-              "w-full text-left rounded-lg border-l-4 px-4 py-3 transition-all hover:shadow-sm",
+              "w-full text-left rounded-xl px-4 py-3 transition-all hover:bg-muted/70",
               priorityStyles[item.priority],
-              completed.has(index) && "opacity-60"
+              completed.has(index) && "opacity-50"
             )}
           >
             <div className="flex items-start gap-3">

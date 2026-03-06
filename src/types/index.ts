@@ -6,6 +6,7 @@ import type {
   timelineMilestones,
   budgetItems,
   notificationLog,
+  movingQuotes,
 } from "@/lib/db/schema";
 
 // ─── Database Row Types ──────────────────────────────────
@@ -26,6 +27,9 @@ export type BudgetItem = InferSelectModel<typeof budgetItems>;
 export type NewBudgetItem = InferInsertModel<typeof budgetItems>;
 
 export type NotificationLogEntry = InferSelectModel<typeof notificationLog>;
+
+export type MovingQuote = InferSelectModel<typeof movingQuotes>;
+export type NewMovingQuote = InferInsertModel<typeof movingQuotes>;
 
 // ─── Enum Types ──────────────────────────────────────────
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Lightbulb, RefreshCw, Sparkles } from "lucide-react";
+import { Lightbulb, RefreshCw, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface Insight {
@@ -37,9 +37,9 @@ export function AiInsights() {
 
   if (isLoading) {
     return (
-      <div className="rounded-xl border bg-card p-6">
+      <div className="rounded-2xl border bg-card p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+          <Brain className="h-4 w-4 text-primary animate-pulse" />
           <h3 className="font-semibold text-sm">AI Insights</h3>
         </div>
         <div className="space-y-3">
@@ -59,10 +59,10 @@ export function AiInsights() {
   }
 
   return (
-    <div className="rounded-xl border bg-card p-6">
+    <div className="rounded-2xl border bg-card p-6 shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
+          <Brain className="h-4 w-4 text-primary" />
           <h3 className="font-semibold text-sm">AI Insights</h3>
         </div>
         <Button

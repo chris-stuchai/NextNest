@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, type FormEvent } from "react";
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { MessageCircle, X, Send, Sparkles, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Bot, Loader2 } from "lucide-react";
 
 /** Extracts all text content from a UIMessage's parts array. */
 function getMessageText(message: UIMessage): string {
@@ -72,7 +72,7 @@ export function MoveAdvisor() {
         <div className="fixed bottom-24 right-6 z-50 flex h-[500px] w-[380px] flex-col overflow-hidden rounded-2xl border bg-background shadow-2xl">
           {/* Header */}
           <div className="flex items-center gap-2 border-b bg-primary/5 px-4 py-3">
-            <Sparkles className="h-4 w-4 text-primary" />
+            <Bot className="h-4 w-4 text-primary" />
             <div>
               <p className="text-sm font-semibold">Move Advisor</p>
               <p className="text-xs text-muted-foreground">AI-powered help</p>

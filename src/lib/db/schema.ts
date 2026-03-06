@@ -156,6 +156,34 @@ export const budgetItems = pgTable("budget_items", {
   createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
 });
 
+export const movingQuoteStatusEnum = pgEnum("moving_quote_status", [
+  "pending",
+  "calling",
+  "connected",
+  "completed",
+  "failed",
+]);
+
+export const movingQuotes = pgTable("moving_quotes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  planId: uuid("plan_id")
+    .references(() => relocationPlans.id, { onDelete: "cascade" })
+    .notNull(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  companyName: text("company_name").notNull(),
+  phoneNumber: text("phone_number").notNull(),
+  callId: text("call_id"),
+  status: movingQuoteStatusEnum("status").default("pending").notNull(),
+  transcript: text("transcript"),
+  quoteLow: integer("quote_low"),
+  quoteHigh: integer("quote_high"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
+});
+
 export const notificationLog = pgTable("notification_log", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")

@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { DashboardShell } from "@/components/dashboard/DashboardShell";
 
-/** Authenticated layout — redirects unauthenticated users to login. */
+/** Authenticated dashboard layout with sidebar. Suppresses the marketing Navbar/Footer. */
 export default async function DashboardLayout({
   children,
 }: {
@@ -13,5 +14,5 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
-  return <>{children}</>;
+  return <DashboardShell>{children}</DashboardShell>;
 }
