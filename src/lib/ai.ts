@@ -1,11 +1,14 @@
-import { createOpenAI } from "@ai-sdk/openai";
+import { createAnthropic } from "@ai-sdk/anthropic";
 
-/** Lazily-initialized OpenAI provider for the Vercel AI SDK. */
-export function getOpenAI() {
-  return createOpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+/** Lazily-initialized Anthropic provider for the Vercel AI SDK. */
+export function getAnthropic() {
+  return createAnthropic({
+    apiKey: process.env.ANTHROPIC_API_KEY,
   });
 }
+
+/** The Claude model used across all AI features. */
+export const AI_MODEL = "claude-sonnet-4-20250514";
 
 /** System prompt for the Move Advisor chat. */
 export const MOVE_ADVISOR_SYSTEM_PROMPT = `You are NextNest's AI Move Advisor — a friendly, knowledgeable relocation expert. 

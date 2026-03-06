@@ -27,7 +27,7 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob:",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.railway.app https://api.openai.com capacitor://localhost",
+              "connect-src 'self' https://*.railway.app https://api.anthropic.com capacitor://localhost",
               "frame-ancestors 'self' capacitor://localhost",
               "base-uri 'self'",
               "form-action 'self'",

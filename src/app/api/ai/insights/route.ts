@@ -10,7 +10,7 @@ import {
   timelineMilestones,
 } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { getOpenAI, INSIGHTS_SYSTEM_PROMPT } from "@/lib/ai";
+import { getAnthropic, AI_MODEL, INSIGHTS_SYSTEM_PROMPT } from "@/lib/ai";
 import { daysUntil } from "@/lib/utils";
 import type { ApiResponse } from "@/types";
 
@@ -30,7 +30,7 @@ export async function GET() {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json<ApiResponse<AiInsight[]>>(
         { data: [], error: null, status: 200 },
         { status: 200 }
@@ -70,10 +70,10 @@ export async function GET() {
     const total = milestones.length;
     const days = daysUntil(plan.targetDate);
 
-    const openai = getOpenAI();
+    const anthropic = getAnthropic();
 
     const result = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: anthropic(AI_MODEL),
       system: INSIGHTS_SYSTEM_PROMPT,
       prompt: `User moving from ${intake.movingFrom} to ${intake.movingTo}.
 Move type: ${intake.moveType}. Target date: ${intake.targetMoveDate} (${days} days away).

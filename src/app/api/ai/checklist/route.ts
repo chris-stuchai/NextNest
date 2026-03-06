@@ -6,7 +6,7 @@ import { auth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { intakeResponses } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { getOpenAI } from "@/lib/ai";
+import { getAnthropic, AI_MODEL } from "@/lib/ai";
 import type { ApiResponse } from "@/types";
 
 export interface ChecklistItem {
@@ -38,7 +38,7 @@ export async function POST() {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.ANTHROPIC_API_KEY) {
       return NextResponse.json<ApiResponse>(
         { data: null, error: "AI features require configuration", status: 503 },
         { status: 503 }
@@ -60,9 +60,9 @@ export async function POST() {
       );
     }
 
-    const openai = getOpenAI();
+    const anthropic = getAnthropic();
     const result = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: anthropic(AI_MODEL),
       system: SYSTEM_PROMPT,
       prompt: `User is moving from ${intake.movingFrom} to ${intake.movingTo}.
 Move date: ${intake.targetMoveDate}. Move type: ${intake.moveType}.

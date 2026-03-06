@@ -8,6 +8,7 @@ const navigation = {
   ],
   support: [
     { name: "Sign In", href: "/login" },
+    { name: "Create Account", href: "/signup" },
   ],
   legal: [
     { name: "Privacy Policy", href: "/privacy" },

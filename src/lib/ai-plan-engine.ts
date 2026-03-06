@@ -1,5 +1,5 @@
 import { generateText } from "ai";
-import { getOpenAI } from "@/lib/ai";
+import { getAnthropic, AI_MODEL } from "@/lib/ai";
 import type {
   IntakeResponse,
   NewTimelineMilestone,
@@ -66,12 +66,12 @@ export async function generateAiMilestones(
   intake: IntakeResponse,
   planId: string
 ): Promise<NewTimelineMilestone[] | null> {
-  if (!process.env.OPENAI_API_KEY) return null;
+  if (!process.env.ANTHROPIC_API_KEY) return null;
 
   try {
-    const openai = getOpenAI();
+    const anthropic = getAnthropic();
     const result = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: anthropic(AI_MODEL),
       system: MILESTONE_PROMPT,
       prompt: buildUserContext(intake),
     });
@@ -108,12 +108,12 @@ export async function generateAiBudgetItems(
   intake: IntakeResponse,
   planId: string
 ): Promise<NewBudgetItem[] | null> {
-  if (!process.env.OPENAI_API_KEY) return null;
+  if (!process.env.ANTHROPIC_API_KEY) return null;
 
   try {
-    const openai = getOpenAI();
+    const anthropic = getAnthropic();
     const result = await generateText({
-      model: openai("gpt-4o-mini"),
+      model: anthropic(AI_MODEL),
       system: BUDGET_PROMPT,
       prompt: buildUserContext(intake),
     });

@@ -5,9 +5,9 @@ export const dynamic = "force-dynamic";
 import { getDb } from "@/lib/db";
 import { intakeResponses } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { getOpenAI, MOVE_ADVISOR_SYSTEM_PROMPT } from "@/lib/ai";
+import { getAnthropic, AI_MODEL, MOVE_ADVISOR_SYSTEM_PROMPT } from "@/lib/ai";
 
-/** POST /api/ai/chat — Streaming AI Move Advisor powered by OpenAI. */
+/** POST /api/ai/chat — Streaming AI Move Advisor powered by Claude. */
 export async function POST(request: Request) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -40,10 +40,10 @@ export async function POST(request: Request) {
 - Top concern: ${intake.topConcern || "Not specified"}`;
   }
 
-  const openai = getOpenAI();
+  const anthropic = getAnthropic();
 
   const result = streamText({
-    model: openai("gpt-4o-mini"),
+    model: anthropic(AI_MODEL),
     system: systemPrompt,
     messages,
   });

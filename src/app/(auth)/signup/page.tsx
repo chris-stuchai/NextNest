@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,63 +15,76 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { Suspense } from "react";
+import { Sparkles, ArrowRight, Mail, Lock, User, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 
-export default function LoginPage() {
-  return (
-    <Suspense>
-      <LoginContent />
-    </Suspense>
-  );
-}
-
-function LoginContent() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
-  const errorParam = searchParams.get("error");
-
+/** Full sign-up page with OAuth and email/password registration. */
+export default function SignUpPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [oauthLoading, setOauthLoading] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(
-    errorParam === "CredentialsSignin"
-      ? "Invalid email or password."
-      : errorParam
-        ? "Something went wrong. Please try again."
-        : null
-  );
+  const [error, setError] = useState<string | null>(null);
 
-  async function handleCredentialsSubmit(e: React.FormEvent) {
+  const passwordChecks = {
+    length: password.length >= 8,
+    match: password === confirmPassword && confirmPassword.length > 0,
+  };
+
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error ?? "Something went wrong.");
+        setIsLoading(false);
+        return;
+      }
+
       const result = await signIn("credentials", {
         email,
         password,
-        callbackUrl,
+        callbackUrl: "/intake",
         redirect: false,
       });
 
-      if (result?.error) {
-        setError("Invalid email or password.");
-      } else if (result?.url) {
+      if (result?.url) {
         window.location.href = result.url;
+      } else {
+        window.location.href = "/login";
       }
     } catch {
       setError("Something went wrong. Please try again.");
-    } finally {
       setIsLoading(false);
     }
   }
 
   function handleOAuth(provider: string) {
     setOauthLoading(provider);
-    signIn(provider, { callbackUrl });
+    signIn(provider, { callbackUrl: "/intake" });
   }
 
   const isDisabled = isLoading || !!oauthLoading;
@@ -80,8 +92,8 @@ function LoginContent() {
   return (
     <div className="relative flex min-h-[calc(100vh-10rem)] items-center justify-center px-4 py-12">
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-1/4 left-1/4 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
+        <div className="absolute top-1/4 right-1/4 h-72 w-72 rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute bottom-1/4 left-1/4 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
       </div>
 
       <motion.div
@@ -102,10 +114,10 @@ function LoginContent() {
             </motion.div>
             <div>
               <CardTitle className="text-2xl font-bold tracking-tight">
-                Welcome back
+                Create your account
               </CardTitle>
               <CardDescription className="mt-2 text-base">
-                Sign in to access your relocation dashboard.
+                Get started with your personalized relocation plan.
               </CardDescription>
             </div>
           </CardHeader>
@@ -148,16 +160,35 @@ function LoginContent() {
               </span>
             </div>
 
-            {/* Credentials Form */}
-            <form onSubmit={handleCredentialsSubmit} className="space-y-4">
+            {/* Registration Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
+                <Label htmlFor="name" className="text-sm font-medium">
+                  Full name
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Jane Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    disabled={isDisabled}
+                    className="h-12 rounded-xl pl-10 text-base"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="signup-email" className="text-sm font-medium">
                   Email
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    id="email"
+                    id="signup-email"
                     type="email"
                     placeholder="you@example.com"
                     value={email}
@@ -170,13 +201,13 @@ function LoginContent() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">
+                <Label htmlFor="signup-password" className="text-sm font-medium">
                   Password
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    id="password"
+                    id="signup-password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     value={password}
@@ -200,6 +231,45 @@ function LoginContent() {
                 </div>
               </div>
 
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password" className="text-sm font-medium">
+                  Confirm password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="confirm-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    disabled={isDisabled}
+                    className="h-12 rounded-xl pl-10 text-base"
+                  />
+                </div>
+              </div>
+
+              {/* Password strength indicators */}
+              {password.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  className="space-y-1.5"
+                >
+                  <PasswordCheck
+                    label="At least 8 characters"
+                    passed={passwordChecks.length}
+                  />
+                  {confirmPassword.length > 0 && (
+                    <PasswordCheck
+                      label="Passwords match"
+                      passed={passwordChecks.match}
+                    />
+                  )}
+                </motion.div>
+              )}
+
               {error && (
                 <motion.p
                   initial={{ opacity: 0, y: -4 }}
@@ -214,16 +284,22 @@ function LoginContent() {
               <Button
                 type="submit"
                 className="group w-full h-12 gap-2 rounded-xl text-base font-medium"
-                disabled={isDisabled || !email || !password}
+                disabled={
+                  isDisabled ||
+                  !name ||
+                  !email ||
+                  !passwordChecks.length ||
+                  !passwordChecks.match
+                }
               >
                 {isLoading ? (
                   <>
                     <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                    Signing in...
+                    Creating account...
                   </>
                 ) : (
                   <>
-                    Sign In
+                    Create Account
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                   </>
                 )}
@@ -231,17 +307,32 @@ function LoginContent() {
             </form>
 
             <p className="text-center text-sm text-muted-foreground">
-              Don&apos;t have an account?{" "}
+              Already have an account?{" "}
               <Link
-                href="/signup"
+                href="/login"
                 className="font-medium text-primary hover:underline underline-offset-4"
               >
-                Sign up
+                Sign in
               </Link>
             </p>
           </CardContent>
         </Card>
       </motion.div>
+    </div>
+  );
+}
+
+function PasswordCheck({ label, passed }: { label: string; passed: boolean }) {
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <CheckCircle2
+        className={`h-3.5 w-3.5 transition-colors ${
+          passed ? "text-emerald-500" : "text-muted-foreground/30"
+        }`}
+      />
+      <span className={passed ? "text-emerald-600" : "text-muted-foreground"}>
+        {label}
+      </span>
     </div>
   );
 }

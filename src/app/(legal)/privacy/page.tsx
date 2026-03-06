@@ -32,7 +32,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-xl font-semibold text-foreground">3. AI-Powered Features</h2>
           <p>
             Some features use AI to personalize your experience. When you interact with AI
-            features, your intake data is sent to our AI provider (OpenAI) to generate
+            features, your intake data is sent to our AI provider (Anthropic) to generate
             personalized advice. This data is not used to train AI models and is processed
             under strict data processing agreements.
           </p>
