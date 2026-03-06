@@ -10,6 +10,14 @@ import {
   timelineMilestones,
   budgetItems,
   notificationLog,
+  leaseDocuments,
+  moveOutPhotos,
+  userBudgets,
+  plaidConnections,
+  moveExpenses,
+  movePartners,
+  userXp,
+  movingQuotes,
 } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import type { ApiResponse } from "@/types";
@@ -74,10 +82,16 @@ export async function DELETE() {
     const db = getDb();
     const userId = session.user.id;
 
-    // Cascade order matters: delete leaf data first, then the user record.
-    // Foreign keys with onDelete: "cascade" handle most of this, but being
-    // explicit ensures all data is removed even if FK constraints are missing.
+    // Delete all user data in dependency order (leaf tables first).
+    await db.delete(userXp).where(eq(userXp.userId, userId));
+    await db.delete(moveExpenses).where(eq(moveExpenses.userId, userId));
+    await db.delete(plaidConnections).where(eq(plaidConnections.userId, userId));
+    await db.delete(moveOutPhotos).where(eq(moveOutPhotos.userId, userId));
+    await db.delete(leaseDocuments).where(eq(leaseDocuments.userId, userId));
+    await db.delete(userBudgets).where(eq(userBudgets.userId, userId));
+    await db.delete(movePartners).where(eq(movePartners.invitedBy, userId));
     await db.delete(notificationLog).where(eq(notificationLog.userId, userId));
+    await db.delete(movingQuotes).where(eq(movingQuotes.userId, userId));
     await db.delete(budgetItems).where(eq(budgetItems.userId, userId));
     await db.delete(timelineMilestones).where(eq(timelineMilestones.userId, userId));
     await db.delete(relocationPlans).where(eq(relocationPlans.userId, userId));

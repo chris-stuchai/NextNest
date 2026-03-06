@@ -28,7 +28,7 @@ import {
   Upload,
 } from "lucide-react";
 import Link from "next/link";
-import { formatDate, formatCurrency, daysUntil } from "@/lib/utils";
+import { formatDate, formatCurrency } from "@/lib/utils";
 import type { DashboardData } from "@/types";
 
 const fadeUp: Variants = {

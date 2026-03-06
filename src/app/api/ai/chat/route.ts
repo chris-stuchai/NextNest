@@ -9,13 +9,25 @@ import { getAnthropic, AI_MODEL, MOVE_ADVISOR_SYSTEM_PROMPT } from "@/lib/ai";
 
 /** POST /api/ai/chat — Streaming AI Move Advisor powered by Claude, enriched with lease + budget context. */
 export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return new Response("Unauthorized", { status: 401 });
-  }
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
-  const { messages: rawMessages } = await request.json();
-  const messages = await convertToModelMessages(rawMessages);
+    let rawMessages;
+    try {
+      const body = await request.json();
+      rawMessages = body.messages;
+    } catch {
+      return new Response("Invalid request body", { status: 400 });
+    }
+
+    if (!Array.isArray(rawMessages) || rawMessages.length === 0) {
+      return new Response("Messages are required", { status: 400 });
+    }
+
+    const messages = await convertToModelMessages(rawMessages);
 
   const db = getDb();
   const [intake, lease, budget] = await Promise.all([
@@ -78,5 +90,9 @@ Use this lease data to give specific, accurate advice about their move-out oblig
     messages,
   });
 
-  return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse();
+  } catch (error) {
+    console.error("AI chat error:", error);
+    return new Response("Internal server error", { status: 500 });
+  }
 }

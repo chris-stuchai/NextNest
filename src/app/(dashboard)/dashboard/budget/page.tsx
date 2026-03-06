@@ -37,22 +37,33 @@ export default function BudgetPage() {
   const [emergencyFund, setEmergencyFund] = useState("");
 
   useEffect(() => {
-    Promise.all([
-      fetch("/api/dashboard").then((r) => r.json()),
-      fetch("/api/budget").then((r) => r.json()),
-    ]).then(([dashJson, budgetJson]) => {
-      if (dashJson.data) setData(dashJson.data);
-      if (budgetJson.data) {
-        const b = budgetJson.data;
-        setBudget(b);
-        setTotalBudget(String(b.totalBudget));
-        setHousingBudget(b.housingBudget ? String(b.housingBudget) : "");
-        setMovingBudget(b.movingBudget ? String(b.movingBudget) : "");
-        setTravelBudget(b.travelBudget ? String(b.travelBudget) : "");
-        setEmergencyFund(b.emergencyFund ? String(b.emergencyFund) : "");
+    async function loadData() {
+      try {
+        const [dashRes, budgetRes] = await Promise.all([
+          fetch("/api/dashboard"),
+          fetch("/api/budget"),
+        ]);
+        const [dashJson, budgetJson] = await Promise.all([
+          dashRes.json(),
+          budgetRes.json(),
+        ]);
+        if (dashJson.data) setData(dashJson.data);
+        if (budgetJson.data) {
+          const b = budgetJson.data;
+          setBudget(b);
+          setTotalBudget(String(b.totalBudget));
+          setHousingBudget(b.housingBudget ? String(b.housingBudget) : "");
+          setMovingBudget(b.movingBudget ? String(b.movingBudget) : "");
+          setTravelBudget(b.travelBudget ? String(b.travelBudget) : "");
+          setEmergencyFund(b.emergencyFund ? String(b.emergencyFund) : "");
+        }
+      } catch {
+        console.error("Failed to load budget data");
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    });
+    }
+    loadData();
   }, []);
 
   async function handleSave() {

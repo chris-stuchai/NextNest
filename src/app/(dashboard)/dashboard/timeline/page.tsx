@@ -40,6 +40,7 @@ export default function TimelinePage() {
   const [xpData, setXpData] = useState<XpData | null>(null);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [showInvite, setShowInvite] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
@@ -52,10 +53,14 @@ export default function TimelinePage() {
         fetch("/api/partners").then((r) => r.json()),
       ]);
       if (dashRes.data) setData(dashRes.data);
+      else setError(dashRes.error ?? "Failed to load timeline");
       if (xpRes.data) setXpData(xpRes.data);
       if (partnerRes.data) setPartners(partnerRes.data);
-    } catch { /* ignore */ }
-    finally { setIsLoading(false); }
+    } catch {
+      setError("Failed to load timeline. Please try refreshing.");
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   useEffect(() => { fetchAll(); }, [fetchAll]);
@@ -95,7 +100,22 @@ export default function TimelinePage() {
     );
   }
 
-  if (!data) return null;
+  if (error || !data) {
+    return (
+      <div className="mx-auto max-w-3xl px-4 py-8">
+        <div className="rounded-2xl border bg-card p-12 text-center shadow-sm">
+          <CalendarDays className="mx-auto h-12 w-12 text-muted-foreground/30 mb-3" />
+          <p className="font-medium text-sm">{error ?? "No timeline data found"}</p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Complete the intake to generate your relocation timeline.
+          </p>
+          <Button variant="outline" size="sm" className="mt-4" onClick={() => { setIsLoading(true); setError(null); fetchAll(); }}>
+            Try again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <motion.div

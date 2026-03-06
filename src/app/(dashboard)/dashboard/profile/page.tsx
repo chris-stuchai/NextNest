@@ -1,39 +1,53 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { motion } from "framer-motion";
-import { User, Mail, Save, Loader2 } from "lucide-react";
+import { User, Mail, Save, Loader2, AlertCircle } from "lucide-react";
 
 /** User profile page with editable name and display info. */
 export default function ProfilePage() {
   const { data: session, update } = useSession();
-  const [name, setName] = useState(session?.user?.name ?? "");
+  const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session?.user?.name && !name) {
+      setName(session.user.name);
+    }
+  }, [session?.user?.name, name]);
 
   const initials = session?.user?.name
     ? session.user.name.split(" ").map((n) => n[0]).join("").toUpperCase()
     : session?.user?.email?.[0]?.toUpperCase() ?? "?";
 
   async function handleSave() {
+    if (!name.trim()) return;
     setSaving(true);
     setSaved(false);
+    setError(null);
     try {
       const res = await fetch("/api/user/profile", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name: name.trim() }),
       });
       if (res.ok) {
-        await update({ name });
+        await update({ name: name.trim() });
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "Failed to update profile");
       }
+    } catch {
+      setError("Something went wrong. Please try again.");
     } finally {
       setSaving(false);
     }
@@ -93,7 +107,14 @@ export default function ProfilePage() {
             </p>
           </div>
 
-          <Button onClick={handleSave} disabled={saving} className="gap-2">
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          )}
+
+          <Button onClick={handleSave} disabled={saving || !name.trim()} className="gap-2">
             {saving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (

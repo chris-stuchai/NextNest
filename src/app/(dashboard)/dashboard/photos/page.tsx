@@ -53,29 +53,40 @@ export default function PhotosPage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (file.size > 10 * 1024 * 1024) {
+      alert("File is too large. Please choose an image under 10 MB.");
+      return;
+    }
+
     setIsUploading(true);
     try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64 = (reader.result as string).split(",")[1];
+      const arrayBuffer = await file.arrayBuffer();
+      const base64 = btoa(
+        new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), "")
+      );
 
-        await fetch("/api/photos", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            room: selectedRoom,
-            caption: caption || null,
-            imageData: base64.slice(0, 500),
-          }),
-        });
+      const res = await fetch("/api/photos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          room: selectedRoom,
+          caption: caption || null,
+          imageData: base64,
+        }),
+      });
 
-        setCaption("");
-        setShowCapture(false);
-        fetchPhotos();
-      };
-      reader.readAsDataURL(file);
-    } catch { /* ignore */ }
-    finally {
+      if (!res.ok) {
+        const json = await res.json();
+        alert(json.error ?? "Upload failed. Please try again.");
+        return;
+      }
+
+      setCaption("");
+      setShowCapture(false);
+      fetchPhotos();
+    } catch {
+      alert("Upload failed. Please try again.");
+    } finally {
       setIsUploading(false);
       if (fileRef.current) fileRef.current.value = "";
     }

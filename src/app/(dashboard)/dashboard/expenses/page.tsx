@@ -138,16 +138,25 @@ export default function ExpensesPage() {
 
   async function addManualExpense() {
     if (!manualName || !manualAmount) return;
-    await fetch("/api/expenses", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: manualName,
-        amount: Math.round(parseFloat(manualAmount) * 100),
-        category: manualCategory,
-        date: manualDate,
-      }),
-    });
+    const parsed = parseFloat(manualAmount);
+    if (isNaN(parsed) || parsed <= 0) return;
+
+    try {
+      const res = await fetch("/api/expenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: manualName,
+          amount: Math.round(parsed * 100),
+          category: manualCategory,
+          date: manualDate,
+        }),
+      });
+      if (!res.ok) return;
+    } catch {
+      return;
+    }
+
     setManualName("");
     setManualAmount("");
     setShowManual(false);

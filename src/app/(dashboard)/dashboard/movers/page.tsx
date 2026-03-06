@@ -41,15 +41,22 @@ export default function MoversPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
+  const [error, setError] = useState<string | null>(null);
+
   async function findMovers() {
     setIsLoading(true);
     setHasSearched(true);
+    setError(null);
     try {
       const res = await fetch("/api/movers", { method: "POST" });
       const json = await res.json();
       if (json.data) setMovers(json.data);
-    } catch { /* ignore */ }
-    finally { setIsLoading(false); }
+      else setError(json.error ?? "No results found");
+    } catch {
+      setError("Failed to search for movers. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
@@ -110,6 +117,21 @@ export default function MoversPage() {
           <p className="text-xs text-muted-foreground mt-1">
             Analyzing your route, budget, and household needs
           </p>
+        </div>
+      )}
+
+      {!isLoading && hasSearched && movers.length === 0 && (
+        <div className="rounded-2xl border bg-card p-12 text-center shadow-sm">
+          <Truck className="mx-auto h-12 w-12 text-muted-foreground/30 mb-3" />
+          <p className="font-medium text-sm">{error ?? "No movers found"}</p>
+          <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
+            {error
+              ? "Check your connection and try again."
+              : "Try adjusting your move details or budget for more results."}
+          </p>
+          <Button variant="outline" size="sm" className="mt-4 gap-1.5" onClick={findMovers}>
+            <RefreshCw className="h-3.5 w-3.5" /> Try Again
+          </Button>
         </div>
       )}
 
