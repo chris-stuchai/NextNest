@@ -6,8 +6,8 @@ interface LogoMarkProps {
 }
 
 /**
- * NextNest logomark — two "N" letterforms styled as houses with peaked roofs,
- * connected by a curved road. Tells the NextNest story in a single mark.
+ * NextNest logomark — a clean house silhouette with a curved road
+ * extending from its base, representing the journey to your next home.
  */
 export function LogoMark({ className, size = "sm" }: LogoMarkProps) {
   const sizes = {
@@ -31,12 +31,20 @@ export function LogoMark({ className, size = "sm" }: LogoMarkProps) {
           size === "sm" ? "h-5 w-5" : size === "md" ? "h-6 w-6" : "h-9 w-9"
         )}
       >
+        {/* House: peaked roof + walls */}
         <path
-          d="M2 20V10L6 4L10 10V20M2 10L10 20M14 20V10L18 4L22 10V20M14 10L22 20M10 20C11.5 18.5 12.5 18.5 14 20"
+          d="M2 13L10 5L18 13M5 13V20H15V13"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        {/* Road curving away from house */}
+        <path
+          d="M15 20C17.5 20 20 19 22 17.5"
           stroke="currentColor"
           strokeWidth="1.8"
           strokeLinecap="round"
-          strokeLinejoin="round"
         />
       </svg>
     </div>
