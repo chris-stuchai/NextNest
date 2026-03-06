@@ -1,4 +1,4 @@
-import { streamText } from "ai";
+import { streamText, convertToModelMessages } from "ai";
 import { auth } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,8 @@ export async function POST(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { messages } = await request.json();
+  const { messages: rawMessages } = await request.json();
+  const messages = await convertToModelMessages(rawMessages);
 
   const db = getDb();
   const [intake, lease, budget] = await Promise.all([

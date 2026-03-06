@@ -223,6 +223,32 @@ export const userBudgets = pgTable("user_budgets", {
   updatedAt: timestamp("updated_at", { mode: "date" }).defaultNow().notNull(),
 });
 
+export const plaidConnections = pgTable("plaid_connections", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  accessToken: text("access_token").notNull(),
+  itemId: text("item_id").notNull(),
+  institutionName: text("institution_name"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
+export const moveExpenses = pgTable("move_expenses", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  plaidTransactionId: text("plaid_transaction_id"),
+  name: text("name").notNull(),
+  amount: integer("amount").notNull(),
+  category: text("category").notNull(),
+  date: date("date", { mode: "string" }).notNull(),
+  isMoveRelated: boolean("is_move_related").default(true).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { mode: "date" }).defaultNow().notNull(),
+});
+
 export const notificationLog = pgTable("notification_log", {
   id: uuid("id").defaultRandom().primaryKey(),
   userId: uuid("user_id")

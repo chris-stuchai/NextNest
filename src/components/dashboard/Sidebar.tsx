@@ -24,6 +24,8 @@ import {
   MapPin,
   FileText,
   Camera,
+  CreditCard,
+  Truck,
 } from "lucide-react";
 
 const navItems = [
@@ -34,6 +36,8 @@ const navItems = [
   { label: "Quotes", href: "/dashboard/quotes", icon: MapPin },
   { label: "Lease", href: "/dashboard/lease", icon: FileText },
   { label: "Photos", href: "/dashboard/photos", icon: Camera },
+  { label: "Expenses", href: "/dashboard/expenses", icon: CreditCard },
+  { label: "Find Movers", href: "/dashboard/movers", icon: Truck },
 ];
 
 const bottomItems = [
