@@ -27,6 +27,7 @@ export default function IntakePage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<IntakeFormData>(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [slideDirection, setSlideDirection] = useState<"forward" | "backward">("forward");
 
   const step = intakeQuestions[currentStep];
@@ -72,6 +73,7 @@ export default function IntakePage() {
 
   async function handleSubmit() {
     setIsSubmitting(true);
+    setError(null);
     try {
       const response = await fetch("/api/intake", {
         method: "POST",
@@ -79,14 +81,16 @@ export default function IntakePage() {
         body: JSON.stringify(formData),
       });
 
+      const result = await response.json();
+
       if (!response.ok) {
-        throw new Error("Failed to submit intake");
+        throw new Error(result.error ?? "Failed to submit intake");
       }
 
-      const { data } = await response.json();
-      router.push(`/intake/loading?planId=${data.planId}`);
-    } catch (error) {
-      console.error("Intake submission failed:", error);
+      router.push(`/intake/loading?planId=${result.data.planId}`);
+    } catch (err) {
+      console.error("Intake submission failed:", err);
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
       setIsSubmitting(false);
     }
   }
