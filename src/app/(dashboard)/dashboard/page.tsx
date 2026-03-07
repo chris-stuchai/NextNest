@@ -26,7 +26,9 @@ import {
   Droplets,
   Key,
   Upload,
+  Pencil,
 } from "lucide-react";
+import { EditMoveDetailsModal } from "@/components/dashboard/EditMoveDetailsModal";
 import Link from "next/link";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import type { DashboardData } from "@/types";
@@ -46,6 +48,7 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   async function fetchDashboard() {
     try {
@@ -129,10 +132,57 @@ export default function DashboardPage() {
   const moveOutChecklistTotal = lease?.moveOutChecklist?.length ?? 0;
   const cleaningTotal = lease?.cleaningRequirements?.length ?? 0;
 
+  const upNextMilestones = data.milestones
+    .filter((m) => !m.isCompleted && m.id !== nextMilestone?.id)
+    .sort((a, b) => new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime())
+    .slice(0, 3);
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      {/* Hero welcome */}
+      {/* 1. Next step — single focused action at top */}
+      {nextMilestone && (
+        <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
+          <div className="rounded-2xl border bg-card p-6 shadow-sm">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                <span className="text-xs font-bold">1</span>
+              </div>
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                Your next step
+              </h2>
+            </div>
+            <button
+              onClick={() => toggleMilestone(nextMilestone.id, true)}
+              disabled={updatingIds.has(nextMilestone.id)}
+              className="flex w-full items-start gap-4 rounded-xl bg-gradient-to-r from-primary/5 to-transparent p-5 text-left transition-colors hover:from-primary/10"
+            >
+              <Circle className="h-5 w-5 mt-0.5 shrink-0 text-primary" />
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold">{nextMilestone.title}</p>
+                {nextMilestone.description && (
+                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+                    {nextMilestone.description}
+                  </p>
+                )}
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Due {formatDate(nextMilestone.targetDate)}
+                </p>
+              </div>
+              <div className="shrink-0 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                {nextMilestone.category}
+              </div>
+            </button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* 2. Move countdown */}
       <motion.div
+        custom={1}
+        variants={fadeUp}
+        initial="hidden"
+        animate="visible"
+        className={nextMilestone ? "mt-6" : ""}
         custom={0}
         variants={fadeUp}
         initial="hidden"
@@ -145,10 +195,18 @@ export default function DashboardPage() {
             Your NextNest is waiting
           </h1>
           <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" />
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
             <span>
               {data.intake.movingFrom} → {data.intake.movingTo}
             </span>
+            <button
+              type="button"
+              onClick={() => setEditModalOpen(true)}
+              className="ml-1 rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label="Edit move locations and date"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
           </div>
         </div>
 
@@ -556,6 +614,16 @@ export default function DashboardPage() {
           </Link>
         </div>
       </motion.div>
+
+      <EditMoveDetailsModal
+        open={editModalOpen}
+        onOpenChange={setEditModalOpen}
+        movingFrom={data.intake.movingFrom}
+        movingTo={data.intake.movingTo}
+        targetMoveDate={data.intake.targetMoveDate}
+        planId={data.plan.id}
+        onSuccess={fetchDashboard}
+      />
     </div>
   );
 }

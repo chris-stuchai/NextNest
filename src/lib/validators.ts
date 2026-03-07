@@ -24,6 +24,18 @@ export const intakeFormSchema = z.object({
 
 export type IntakeFormInput = z.infer<typeof intakeFormSchema>;
 
+/** Validates partial intake updates (locations and timeline only). */
+export const intakeUpdateSchema = intakeFormSchema.pick({
+  movingFrom: true,
+  movingTo: true,
+  targetMoveDate: true,
+}).partial().refine(
+  (data) => Object.keys(data).length > 0,
+  { message: "At least one field (movingFrom, movingTo, or targetMoveDate) is required" }
+);
+
+export type IntakeUpdateInput = z.infer<typeof intakeUpdateSchema>;
+
 /** Validates a milestone completion toggle. */
 export const milestoneUpdateSchema = z.object({
   isCompleted: z.boolean(),
